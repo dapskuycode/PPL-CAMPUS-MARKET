@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id_category   Int       @id @default(autoincrement())
+  nama_kategori String    @db.VarChar(100)
+  product       product[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model product {
+  id_product     Int             @id @default(autoincrement())
+  id_seller      Int
+  id_category    Int?
+  nama_produk    String          @db.VarChar(150)
+  deskripsi      String?
+  harga          Decimal         @db.Decimal(15, 2)
+  stok           Int?            @default(0)
+  berat          Decimal?        @db.Decimal(10, 2)
+  kondisi        String?         @db.VarChar(10)
+  lokasi         String?         @db.VarChar(100)
+  tanggal_upload DateTime?       @default(now()) @db.Timestamp(6)
+  status_produk  String?         @default("aktif") @db.VarChar(10)
+  category       category?       @relation(fields: [id_category], references: [id_category], onDelete: NoAction, onUpdate: NoAction)
+  seller         seller          @relation(fields: [id_seller], references: [id_seller], onDelete: Cascade, onUpdate: NoAction)
+  product_image  product_image[]
+  rating         rating[]
+}
+
+model product_image {
+  id_image    Int     @id @default(autoincrement())
+  id_product  Int
+  path_gambar String  @db.VarChar(255)
+  urutan      Int?    @default(1)
+  product     product @relation(fields: [id_product], references: [id_product], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model rating {
+  id_rating       Int       @id @default(autoincrement())
+  id_product      Int
+  nama_pengunjung String    @db.VarChar(100)
+  email           String?   @db.VarChar(100)
+  no_hp           String?   @db.VarChar(20)
+  komentar        String?
+  nilai           Int?
+  tanggal         DateTime? @default(now()) @db.Timestamp(6)
+  product         product   @relation(fields: [id_product], references: [id_product], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model seller {
+  id_seller          Int       @id @default(autoincrement())
+  nama_toko          String    @db.VarChar(100)
+  deskripsi_singkat  String?
+  nama_pic           String    @db.VarChar(100)
+  no_hp_pic          String?   @db.VarChar(20)
+  email_pic          String?   @db.VarChar(100)
+  alamat_jalan       String?   @db.VarChar(255)
+  rt                 String?   @db.VarChar(10)
+  rw                 String?   @db.VarChar(10)
+  nama_kelurahan     String?   @db.VarChar(100)
+  kabupaten_kota     String?   @db.VarChar(100)
+  provinsi           String?   @db.VarChar(100)
+  no_ktp_pic         String?   @db.VarChar(30)
+  foto_ktp           String?   @db.VarChar(255)
+  file_upload_ktp    String?   @db.VarChar(255)
+  status_verifikasi  String?   @db.VarChar(20)
+  tanggal_verifikasi DateTime? @db.Timestamp(6)
+  status_akun        String?   @db.VarChar(20)
+  tanggal_daftar     DateTime? @default(now()) @db.Timestamp(6)
+  product            product[]
+}
