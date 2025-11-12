@@ -8,73 +8,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model category {
-  id_category   Int       @id @default(autoincrement())
-  nama_kategori String    @db.VarChar(100)
-  product       product[]
+model User {
+  idUser            Int       @id @default(autoincrement())
+  nama              String?   @db.VarChar(255)
+  noHP              String?   @db.VarChar(20)
+  email             String?   @db.VarChar(255)
+  alamatJalan       String?   @db.VarChar(255)
+  rt                String?   @db.VarChar(10)
+  rw                String?   @db.VarChar(10)
+  namaKelurahan     String?   @db.VarChar(100)
+  kabupatenKota     String?   @db.VarChar(100)
+  provinsi          String?   @db.VarChar(100)
+  noKtp             String?   @db.VarChar(30)
+  fotoKtp           String?   @db.VarChar(255)
+  fileUploadKtp     String?   @db.VarChar(255)
+  statusVerifikasi  String?   @db.VarChar(20)
+  tanggalVerifikasi DateTime? @db.Timestamp(6)
+  statusAkun        String?   @db.VarChar(20)
+  tanggalDaftar     DateTime? @default(now()) @db.Timestamp(6)
+  role              String?   @db.VarChar(50)
+
+  product           Product[] @relation("SellerProducts")
+  toko              Toko?     @relation
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model product {
-  id_product     Int             @id @default(autoincrement())
-  id_seller      Int
-  id_category    Int?
-  nama_produk    String          @db.VarChar(150)
-  deskripsi      String?
-  harga          Decimal         @db.Decimal(15, 2)
-  stok           Int?            @default(0)
-  berat          Decimal?        @db.Decimal(10, 2)
-  kondisi        String?         @db.VarChar(10)
-  lokasi         String?         @db.VarChar(100)
-  tanggal_upload DateTime?       @default(now()) @db.Timestamp(6)
-  status_produk  String?         @default("aktif") @db.VarChar(10)
-  category       category?       @relation(fields: [id_category], references: [id_category], onDelete: NoAction, onUpdate: NoAction)
-  seller         seller          @relation(fields: [id_seller], references: [id_seller], onDelete: Cascade, onUpdate: NoAction)
-  product_image  product_image[]
-  rating         rating[]
+model Toko {
+  idToko          Int      @id @default(autoincrement())
+  namaToko        String   @db.VarChar(255)
+  idSeller        Int      @unique
+  deskripsiSingkat String?
+
+  seller          User     @relation(fields: [idSeller], references: [idUser])
 }
 
-model product_image {
-  id_image    Int     @id @default(autoincrement())
-  id_product  Int
-  path_gambar String  @db.VarChar(255)
-  urutan      Int?    @default(1)
-  product     product @relation(fields: [id_product], references: [id_product], onDelete: Cascade, onUpdate: NoAction)
+model Category {
+  idCategory   Int       @id @default(autoincrement())
+  namaKategori String    @db.VarChar(255)
+
+  product      Product[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model rating {
-  id_rating       Int       @id @default(autoincrement())
-  id_product      Int
-  nama_pengunjung String    @db.VarChar(100)
-  email           String?   @db.VarChar(100)
-  no_hp           String?   @db.VarChar(20)
-  komentar        String?
-  nilai           Int?
-  tanggal         DateTime? @default(now()) @db.Timestamp(6)
-  product         product   @relation(fields: [id_product], references: [id_product], onDelete: Cascade, onUpdate: NoAction)
+model Product {
+  idProduct     Int       @id @default(autoincrement())
+  idSeller      Int
+  idCategory    Int?
+  namaProduk    String    @db.VarChar(255)
+  deskripsi     String?
+  harga         Decimal   @db.Decimal(15, 2)
+  stok          Int?      @default(0)
+  berat         Decimal?  @db.Decimal(10, 2)
+  kondisi       String?   @db.VarChar(10)
+  lokasi        String?   @db.VarChar(255)
+  tanggalUpload DateTime? @default(now()) @db.Timestamp(6)
+  statusProduk  String?   @default("aktif") @db.VarChar(20)
+
+  seller       User?      @relation("SellerProducts", fields: [idSeller], references: [idUser], onDelete: Cascade)
+  category     Category?  @relation(fields: [idCategory], references: [idCategory])
+  productImage ProductImage[]
+  rating       Rating[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model seller {
-  id_seller          Int       @id @default(autoincrement())
-  nama_toko          String    @db.VarChar(100)
-  deskripsi_singkat  String?
-  nama_pic           String    @db.VarChar(100)
-  no_hp_pic          String?   @db.VarChar(20)
-  email_pic          String?   @db.VarChar(100)
-  alamat_jalan       String?   @db.VarChar(255)
-  rt                 String?   @db.VarChar(10)
-  rw                 String?   @db.VarChar(10)
-  nama_kelurahan     String?   @db.VarChar(100)
-  kabupaten_kota     String?   @db.VarChar(100)
-  provinsi           String?   @db.VarChar(100)
-  no_ktp_pic         String?   @db.VarChar(30)
-  foto_ktp           String?   @db.VarChar(255)
-  file_upload_ktp    String?   @db.VarChar(255)
-  status_verifikasi  String?   @db.VarChar(20)
-  tanggal_verifikasi DateTime? @db.Timestamp(6)
-  status_akun        String?   @db.VarChar(20)
-  tanggal_daftar     DateTime? @default(now()) @db.Timestamp(6)
-  product            product[]
+model ProductImage {
+  idImage    Int      @id @default(autoincrement())
+  idProduct  Int
+  namaGambar String   @db.VarChar(255)
+  urutan     Int?
+
+  product    Product  @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+}
+
+model Rating {
+  idRating      Int       @id @default(autoincrement())
+  idProduct     Int
+  namaPengunjung String   @db.VarChar(255)
+  email         String?   @db.VarChar(255)
+  noHP          String?   @db.VarChar(20)
+  komentar      String?
+  nilai         Int?
+  tanggal       DateTime? @default(now()) @db.Timestamp(6)
+
+  product       Product   @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
 }
