@@ -7,18 +7,18 @@ export default function Home() {
   const [openRegister, setOpenRegister] = useState(false);
 
   return (
-    <div className="relative min-h-screen bg-white text-black font-sans">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 to-green-50 text-black font-sans">
       <header>
-        <div className="absolute top-6 right-6 flex gap-2">
+        <div className="absolute top-6 right-6 flex gap-3">
           <button
             onClick={() => setOpenRegister(true)}
-            className="px-3 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700"
+            className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
           >
             Registrasi
           </button>
           <Link
             href="/login"
-            className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
           >
             Login
           </Link>
@@ -27,16 +27,16 @@ export default function Home() {
 
       <main className="flex min-h-screen items-center justify-center">
         <div className="text-center px-6">
-          <h1 className="text-4xl font-bold text-black mb-4">
+          <h1 className="text-5xl font-bold text-gray-800 mb-4 drop-shadow-sm">
             Selamat datang di Campus Market
           </h1>
-          <p className="text-lg text-zinc-600 mb-6">
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Temukan produk kampus, jual, dan dukung usaha lokal di sekitarmu.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/login"
-              className="inline-block px-6 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700"
+              className="inline-block px-8 py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
             >
               Masuk / Mulai
             </Link>

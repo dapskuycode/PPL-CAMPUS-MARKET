@@ -27,6 +27,7 @@ model User {
   statusAkun        String?   @db.VarChar(20)
   tanggalDaftar     DateTime? @default(now()) @db.Timestamp(6)
   role              String?   @db.VarChar(50)
+  password          String    @db.VarChar(255)
   product           Product[] @relation("SellerProducts")
   toko              Toko?
 }
