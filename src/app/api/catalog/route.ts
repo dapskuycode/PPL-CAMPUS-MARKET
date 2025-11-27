@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
         seller: {
           select: {
             nama: true,
+            kabupatenKota: true,
+            provinsi: true,
             toko: {
               select: {
                 namaToko: true,
@@ -69,7 +71,13 @@ export async function GET(request: NextRequest) {
     );
   } catch (error: any) {
     console.error("Error fetching catalog data:", error);
-    return NextResponse.json({ error: "Terjadi kesalahan saat mengambil data katalog", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Terjadi kesalahan saat mengambil data katalog",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -77,11 +85,27 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { namaProduk, deskripsiProduk, harga, berat, kondisi, lokasi, stok, idCategory, idSeller, tanggalUpload } = body;
+    const {
+      namaProduk,
+      deskripsiProduk,
+      harga,
+      berat,
+      kondisi,
+      lokasi,
+      stok,
+      idCategory,
+      idSeller,
+      tanggalUpload,
+    } = body;
 
     // Validate required fields
     if (!namaProduk || !harga || !stok || !idCategory || !idSeller) {
-      return NextResponse.json({ error: "Nama produk, harga, stok, kategori, dan penjual harus diisi" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Nama produk, harga, stok, kategori, dan penjual harus diisi",
+        },
+        { status: 400 }
+      );
     }
 
     // Create new product
@@ -103,6 +127,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error("Error adding new product:", error);
-    return NextResponse.json({ error: "Terjadi kesalahan saat menambahkan produk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat menambahkan produk" },
+      { status: 500 }
+    );
   }
 }

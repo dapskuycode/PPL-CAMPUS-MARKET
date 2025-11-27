@@ -17,6 +17,8 @@ interface Product {
   } | null;
   seller: {
     nama: string;
+    kabupatenKota: string;
+    provinsi: string;
     toko: {
       namaToko: string;
     } | null;
@@ -64,36 +66,58 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                     if ((e.target as HTMLImageElement).parentElement) {
-                      (e.target as HTMLImageElement).parentElement!.innerHTML = '<p class="text-muted-foreground text-sm">Gambar tidak ditemukan</p>';
+                      (e.target as HTMLImageElement).parentElement!.innerHTML =
+                        '<p class="text-muted-foreground text-sm">Gambar tidak ditemukan</p>';
                     }
                   }}
                 />
               ) : (
-                <p className="text-muted-foreground text-sm">Tidak ada gambar</p>
+                <p className="text-muted-foreground text-sm">
+                  Tidak ada gambar
+                </p>
               )}
             </div>
 
             <CardContent className="p-4">
               {/* Category and Condition Badges */}
               <div className="flex flex-wrap gap-2 mb-3">
-                <Badge variant="secondary">{product.category?.namaKategori || "Tanpa Kategori"}</Badge>
-                {product.kondisi && <Badge variant="outline">{product.kondisi}</Badge>}
+                <Badge variant="secondary">
+                  {product.category?.namaKategori || "Tanpa Kategori"}
+                </Badge>
+                {product.kondisi && (
+                  <Badge variant="outline">{product.kondisi}</Badge>
+                )}
               </div>
 
               {/* Product Name */}
-              <h3 className="font-semibold text-lg mb-2 line-clamp-1">{product.namaProduk}</h3>
+              <h3 className="font-semibold text-lg mb-2 line-clamp-1">
+                {product.namaProduk}
+              </h3>
 
               {/* Description */}
-              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.deskripsi || "Tidak ada deskripsi"}</p>
+              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                {product.deskripsi || "Tidak ada deskripsi"}
+              </p>
 
               {/* Seller and Stock Info */}
               <div className="space-y-1 mb-3">
-                <p className="text-xs text-muted-foreground">Penjual: {product.seller.toko?.namaToko || product.seller.nama}</p>
-                <p className="text-xs text-muted-foreground">Stok: {product.stok || 0} pcs</p>
+                <p className="text-xs text-muted-foreground">
+                  Penjual:{" "}
+                  {product.seller.toko?.namaToko || product.seller.nama}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Lokasi: {product.seller.kabupatenKota},{" "}
+                  {product.seller.provinsi}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Stok: {product.stok || 0} pcs
+                </p>
               </div>
 
               {/* Price */}
-              <p className="text-xl font-bold text-primary">Rp {product.harga.toLocaleString("id-ID")}</p>
+              <p className="text-xl font-bold text-primary">
+                Rp {product.harga.toLocaleString("id-ID")}
+              </p>
             </CardContent>
           </Card>
         </Link>

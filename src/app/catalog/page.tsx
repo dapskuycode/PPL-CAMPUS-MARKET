@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
 
@@ -22,6 +28,8 @@ interface Product {
   } | null;
   seller: {
     nama: string;
+    kabupatenKota: string;
+    provinsi: string;
     toko: {
       namaToko: string;
     } | null;
@@ -34,25 +42,44 @@ interface Product {
 
 export default function CatalogPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
-    fetchProducts();
-  }, [router]);
 
-  const fetchProducts = async () => {
+    // Read search parameter dari URL
+    const searchParam = searchParams.get("search");
+    console.log("[CatalogPage] Search param from URL:", searchParam);
+
+    if (searchParam) {
+      setSearchQuery(searchParam);
+      fetchProducts(searchParam);
+    } else {
+      fetchProducts();
+    }
+  }, [searchParams]);
+
+  const fetchProducts = async (query: string = "") => {
     try {
       setLoading(true);
-      const response = await fetch("/api/catalog");
+      const url = query
+        ? `/api/catalog/search?q=${encodeURIComponent(query)}`
+        : "/api/catalog";
+      console.log("Fetching products from:", url);
+      const response = await fetch(url);
       const data = await response.json();
+      console.log("Response:", response.ok, "Data:", data);
       if (response.ok) {
         setProducts(data.products || []);
+      } else {
+        console.error("Failed to fetch products:", data);
       }
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -69,7 +96,12 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CatalogHeader userName={user?.nama} userRole={user?.role} onLogout={handleLogout} isLoggedIn={!!user} />
+      <CatalogHeader
+        userName={user?.nama}
+        userRole={user?.role}
+        onLogout={handleLogout}
+        isLoggedIn={!!user}
+      />
 
       <main className="container mx-auto px-4 lg:px-8 py-8">
         {/* Hero Section */}
@@ -81,7 +113,11 @@ export default function CatalogPage() {
               </div>
               <div>
                 <CardTitle className="text-3xl">Katalog Produk</CardTitle>
-                <CardDescription className="text-base mt-1">Jelajahi semua produk yang tersedia di Campus Market</CardDescription>
+                <CardDescription className="text-base mt-1">
+                  {searchQuery
+                    ? `Hasil pencarian untuk: "${searchQuery}"`
+                    : "Jelajahi semua produk yang tersedia di Campus Market"}
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -107,9 +143,19 @@ export default function CatalogPage() {
               <div className="p-4 bg-muted rounded-full mb-4">
                 <IconSearch className="h-12 w-12 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Belum Ada Produk</h3>
-              <p className="text-muted-foreground text-center max-w-md mb-6">Saat ini belum ada produk yang tersedia. Silakan cek kembali nanti.</p>
-              {user?.role === "penjual" && <Button onClick={() => router.push("/dashboard")}>Mulai Jual Produk</Button>}
+              <h3 className="text-xl font-semibold mb-2">
+                {searchQuery ? "Tidak Ada Hasil" : "Belum Ada Produk"}
+              </h3>
+              <p className="text-muted-foreground text-center max-w-md mb-6">
+                {searchQuery
+                  ? `Tidak ditemukan produk yang sesuai dengan pencarian "${searchQuery}". Coba kata kunci lain.`
+                  : "Saat ini belum ada produk yang tersedia. Silakan cek kembali nanti."}
+              </p>
+              {user?.role === "penjual" && !searchQuery && (
+                <Button onClick={() => router.push("/dashboard")}>
+                  Mulai Jual Produk
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
