@@ -43,9 +43,9 @@ function LoginContent() {
       if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "penjual") {
-        router.push("/seller/dashboard");
-      } else {
         router.push("/dashboard");
+      } else {
+        router.push("/");
       }
     } catch (err: any) {
       console.error("Login error:", err);
