@@ -26,7 +26,7 @@ export default function AdminCategoriesPage() {
 
   if (!user) return null;
 
-  r return (
+  return (
     <SidebarProvider
       style={
         {
