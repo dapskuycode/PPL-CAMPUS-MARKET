@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -43,9 +43,9 @@ export default function LoginPage() {
       if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "penjual") {
-        router.push("/catalog");
+        router.push("/seller/dashboard");
       } else {
-        router.push("/catalog");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       console.error("Login error:", err);
@@ -61,5 +61,13 @@ export default function LoginPage() {
         <LoginForm email={email} password={password} loading={loading} error={error} successMessage={successMessage} onEmailChange={setEmail} onPasswordChange={setPassword} onSubmit={handleSubmit} />
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="bg-muted flex min-h-svh items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

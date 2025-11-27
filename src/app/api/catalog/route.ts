@@ -16,9 +16,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Build product filter based on selected categories
-    let productFilter: any = {
-      statusProduk: "aktif", // Only show active products
-    };
+    let productFilter: any = {};
 
     if (categoriesParam) {
       const categoryIds = categoriesParam.split(",").map((id) => parseInt(id));
@@ -71,9 +69,40 @@ export async function GET(request: NextRequest) {
     );
   } catch (error: any) {
     console.error("Error fetching catalog data:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan saat mengambil data katalog", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan saat mengambil data katalog", details: error.message }, { status: 500 });
+  }
+}
+
+// Post - tambahkan produk baru
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { namaProduk, deskripsiProduk, harga, berat, kondisi, lokasi, stok, idCategory, idSeller, tanggalUpload } = body;
+
+    // Validate required fields
+    if (!namaProduk || !harga || !stok || !idCategory || !idSeller) {
+      return NextResponse.json({ error: "Nama produk, harga, stok, kategori, dan penjual harus diisi" }, { status: 400 });
+    }
+
+    // Create new product
+    const product = await prisma.product.create({
+      data: {
+        namaProduk,
+        deskripsi: deskripsiProduk || null,
+        harga,
+        stok,
+        berat,
+        kondisi,
+        lokasi,
+        idCategory,
+        idSeller,
+        tanggalUpload: tanggalUpload ? new Date(tanggalUpload) : new Date(),
+        statusProduk: "aktif",
+      },
+    });
+    return NextResponse.json(product, { status: 201 });
+  } catch (error) {
+    console.error("Error adding new product:", error);
+    return NextResponse.json({ error: "Terjadi kesalahan saat menambahkan produk" }, { status: 500 });
   }
 }

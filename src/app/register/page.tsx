@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RegisterForm } from "@/components/register-form";
 
-export default function RegisterPage() {
+function RegisterContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [role, setRole] = useState((searchParams?.get("role") ?? "user").toLowerCase());
@@ -141,5 +141,13 @@ export default function RegisterPage() {
         onRoleChange={setRole}
       />
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-svh items-center justify-center">Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }
