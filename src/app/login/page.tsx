@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { LoginForm } from "@/components/login-form";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    // Check if redirected from successful registration
     if (searchParams?.get("registered") === "true") {
       setSuccessMessage("Registrasi berhasil! Silakan login dengan akun Anda.");
     }
@@ -39,16 +38,14 @@ export default function LoginPage() {
       }
 
       console.log("Login berhasil:", data);
-      // Store user session
       localStorage.setItem("user", JSON.stringify(data.user));
-      
-      // Redirect based on role
+
       if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "penjual") {
-        router.push("/catalog");
+        router.push("/seller/dashboard");
       } else {
-        router.push("/catalog");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       console.error("Login error:", err);
@@ -59,58 +56,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 text-black flex items-center justify-center font-sans">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl border border-gray-100">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Login</h1>
-        <p className="mb-6 text-gray-600">Masukkan email dan password Anda untuk masuk.</p>
-
-        {successMessage && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-            {successMessage}
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm text-zinc-700">Email</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="email@example.com"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-zinc-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border px-3 py-2"
-              required
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
-            >
-              {loading ? "Memproses..." : "Masuk"}
-            </button>
-            <Link href="/" className="text-sm text-zinc-600 hover:underline">Kembali</Link>
-          </div>
-        </form>
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-4xl">
+        <LoginForm email={email} password={password} loading={loading} error={error} successMessage={successMessage} onEmailChange={setEmail} onPasswordChange={setPassword} onSubmit={handleSubmit} />
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="bg-muted flex min-h-svh items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

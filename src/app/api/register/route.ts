@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma/client";
 import { writeFile } from "fs/promises";
 import path from "path";
+import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
+
     const role = formData.get("role") as string;
     const nama = formData.get("nama") as string;
     const noHP = formData.get("noHP") as string;
@@ -23,23 +24,17 @@ export async function POST(request: NextRequest) {
     const noKtp = (formData.get("noKtp") as string) || "";
     const namaToko = (formData.get("namaToko") as string) || "";
     const deskripsiToko = (formData.get("deskripsiToko") as string) || "";
-    
+
     const fotoKtpFile = formData.get("fotoKtp") as File | null;
     const fileUploadPICFile = formData.get("fileUploadKtp") as File | null;
 
     // Validate required fields
     if (!nama || !noHP || !email || !password || !alamatJalan || !role) {
-      return NextResponse.json(
-        { error: "Data wajib tidak lengkap" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Data wajib tidak lengkap" }, { status: 400 });
     }
 
     if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password minimal 6 karakter" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Password minimal 6 karakter" }, { status: 400 });
     }
 
     // Check if email already exists
@@ -48,10 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Email sudah terdaftar" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "Email sudah terdaftar" }, { status: 409 });
     }
 
     // Handle file uploads
@@ -65,7 +57,7 @@ export async function POST(request: NextRequest) {
         const fileName = `${timestamp}_${fotoKtpFile.name}`;
         const bytes = await fotoKtpFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
+
         const filePath = path.join(process.cwd(), "public", "fotoKTP", fileName);
         await writeFile(filePath, buffer);
         fotoKtpPath = `/fotoKTP/${fileName}`;
@@ -77,12 +69,15 @@ export async function POST(request: NextRequest) {
         const fileName = `${timestamp}_${fileUploadPICFile.name}`;
         const bytes = await fileUploadPICFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
+
         const filePath = path.join(process.cwd(), "public", "fotoPIC", fileName);
         await writeFile(filePath, buffer);
         fileUploadPICPath = `/fotoPIC/${fileName}`;
       }
     }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
     const user = await prisma.user.create({
@@ -90,7 +85,7 @@ export async function POST(request: NextRequest) {
         nama,
         noHP,
         email,
-        password,
+        password: hashedPassword,
         alamatJalan,
         rt,
         rw,
@@ -127,9 +122,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error("Registration error:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan saat registrasi", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Terjadi kesalahan saat registrasi", details: error.message }, { status: 500 });
   }
 }
