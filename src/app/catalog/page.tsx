@@ -42,7 +42,10 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
+    // Redirect to home page (catalog is now at /)
+    router.push("/");
+    return;
+    
     const userData = localStorage.getItem("user");
     if (!userData) {
       router.push("/login");

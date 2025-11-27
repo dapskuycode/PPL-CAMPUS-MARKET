@@ -50,7 +50,7 @@ export default function ProductDetailPage() {
 
   const fetchProductDetail = async () => {
     try {
-      const response = await fetch(`/api/catalog/${params.id}`);
+      const response = await fetch(`/api/product/${params.id}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
         <div className="text-center">
           <p className="text-gray-600 mb-4">Produk tidak ditemukan</p>
           <Link
-            href="/catalog"
+            href="/"
             className="text-blue-600 hover:underline"
           >
             Kembali ke Katalog
