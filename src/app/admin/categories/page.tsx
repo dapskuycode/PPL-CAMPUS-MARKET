@@ -1,0 +1,64 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminHeader } from "@/components/admin/admin-header";
+
+export default function AdminCategoriesPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/login");
+      return;
+    }
+    const parsedUser = JSON.parse(userData);
+    if (parsedUser.role !== "admin") {
+      router.push("/catalog");
+      return;
+    }
+    setUser(parsedUser);
+  }, [router]);
+
+  if (!user) return null;
+
+  r return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AdminSidebar
+        variant="inset"
+        user={{
+          name: user?.nama || "Admin",
+          email: user?.email || "",
+          avatar: "/avatars/admin.jpg",
+        }}
+      />
+      <SidebarInset>
+        <AdminHeader userName={user?.nama || "Admin"} />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6">
+                <AdminStats totalSellers={pendingSellers.length} pendingSellers={pendingSellers.length} verifiedSellers={0} totalProducts={0} />
+              </div>
+              <div className="px-4 lg:px-6">
+                {error && <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded">{error}</div>}
+                <PendingSellersTable sellers={pendingSellers} onVerify={handleVerify} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}

@@ -31,8 +31,8 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
       icon: IconUsers,
     },
     {
-      title: "Kelola Produk",
-      url: "/admin/products",
+      title: "Kelola Kategori",
+      url: "/admin/categories",
       icon: IconShoppingBag,
     },
   ];
