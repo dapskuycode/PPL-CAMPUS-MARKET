@@ -19,6 +19,7 @@ interface RegisterFormProps {
   rt: string;
   rw: string;
   namaKelurahan: string;
+  kecamatan: string;
   kabupatenKota: string;
   provinsi: string;
   // Seller fields
@@ -40,6 +41,7 @@ interface RegisterFormProps {
   onRtChange: (value: string) => void;
   onRwChange: (value: string) => void;
   onNamaKelurahanChange: (value: string) => void;
+  onKecamatanChange: (value: string) => void;
   onKabupatenKotaChange: (value: string) => void;
   onProvinsiChange: (value: string) => void;
   onNoKtpChange: (value: string) => void;
@@ -62,6 +64,7 @@ export function RegisterForm({
   rt,
   rw,
   namaKelurahan,
+  kecamatan,
   kabupatenKota,
   provinsi,
   noKtp,
@@ -80,6 +83,7 @@ export function RegisterForm({
   onRtChange,
   onRwChange,
   onNamaKelurahanChange,
+  onKecamatanChange,
   onKabupatenKotaChange,
   onProvinsiChange,
   onNoKtpChange,
@@ -97,9 +101,9 @@ export function RegisterForm({
         <CardDescription>Buat akun baru di Campus Market</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs value={role || "user"} onValueChange={onRoleChange} className="mb-6">
+        <Tabs value={role || "pembeli"} onValueChange={onRoleChange} className="mb-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="user">Pembeli</TabsTrigger>
+            <TabsTrigger value="pembeli">Pembeli</TabsTrigger>
             <TabsTrigger value="penjual">Penjual</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -146,12 +150,29 @@ export function RegisterForm({
             <div className="space-y-4 pt-6">
               <h3 className="text-lg font-semibold">Alamat</h3>
 
-              <Field>
-                <FieldLabel htmlFor="alamatJalan">Alamat Jalan</FieldLabel>
-                <Input id="alamatJalan" value={alamatJalan} onChange={(e) => onAlamatJalanChange(e.target.value)} required />
-              </Field>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="provinsi">Provinsi</FieldLabel>
+                  <Input id="provinsi" value={provinsi} onChange={(e) => onProvinsiChange(e.target.value)} />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="kabupaten">Kabupaten/Kota</FieldLabel>
+                  <Input id="kabupaten" value={kabupatenKota} onChange={(e) => onKabupatenKotaChange(e.target.value)} />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="kecamatan">Kecamatan</FieldLabel>
+                  <Input id="kecamatan" value={kecamatan} onChange={(e) => onKecamatanChange(e.target.value)} />
+                </Field>
+              </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Field className="col-span-2">
+                  <FieldLabel htmlFor="kelurahan">Kelurahan</FieldLabel>
+                  <Input id="kelurahan" value={namaKelurahan} onChange={(e) => onNamaKelurahanChange(e.target.value)} />
+                </Field>
+
                 <Field>
                   <FieldLabel htmlFor="rt">RT</FieldLabel>
                   <Input id="rt" value={rt} onChange={(e) => onRtChange(e.target.value)} />
@@ -161,24 +182,12 @@ export function RegisterForm({
                   <FieldLabel htmlFor="rw">RW</FieldLabel>
                   <Input id="rw" value={rw} onChange={(e) => onRwChange(e.target.value)} />
                 </Field>
-
-                <Field className="col-span-2">
-                  <FieldLabel htmlFor="kelurahan">Kelurahan</FieldLabel>
-                  <Input id="kelurahan" value={namaKelurahan} onChange={(e) => onNamaKelurahanChange(e.target.value)} />
-                </Field>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="kabupaten">Kabupaten/Kota</FieldLabel>
-                  <Input id="kabupaten" value={kabupatenKota} onChange={(e) => onKabupatenKotaChange(e.target.value)} />
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="provinsi">Provinsi</FieldLabel>
-                  <Input id="provinsi" value={provinsi} onChange={(e) => onProvinsiChange(e.target.value)} />
-                </Field>
-              </div>
+              <Field>
+                <FieldLabel htmlFor="alamatJalan">Alamat Jalan</FieldLabel>
+                <Input id="alamatJalan" value={alamatJalan} onChange={(e) => onAlamatJalanChange(e.target.value)} required />
+              </Field>
             </div>
 
             {/* Informasi Toko - Only for Seller */}

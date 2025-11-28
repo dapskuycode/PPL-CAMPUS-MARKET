@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     const rt = (formData.get("rt") as string) || "";
     const rw = (formData.get("rw") as string) || "";
     const namaKelurahan = (formData.get("namaKelurahan") as string) || "";
+    const kecamatan = (formData.get("kecamatan") as string) || "";
     const kabupatenKota = (formData.get("kabupatenKota") as string) || "";
     const provinsi = (formData.get("provinsi") as string) || "";
     const noKtp = (formData.get("noKtp") as string) || "";
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
         rt,
         rw,
         namaKelurahan,
+        kecamatan,
         kabupatenKota,
         provinsi,
         noKtp: role === "penjual" && noKtp ? noKtp : null,

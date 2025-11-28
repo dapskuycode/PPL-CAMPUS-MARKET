@@ -7,7 +7,7 @@ import { RegisterForm } from "@/components/register-form";
 function RegisterContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [role, setRole] = useState((searchParams?.get("role") ?? "user").toLowerCase());
+  const [role, setRole] = useState((searchParams?.get("role") ?? "pembeli").toLowerCase());
 
   // Common fields
   const [nama, setNama] = useState("");
@@ -19,6 +19,7 @@ function RegisterContent() {
   const [rt, setRt] = useState("");
   const [rw, setRw] = useState("");
   const [namaKelurahan, setNamaKelurahan] = useState("");
+  const [kecamatan, setKecamatan] = useState("");
   const [kabupatenKota, setKabupatenKota] = useState("");
   const [provinsi, setProvinsi] = useState("");
 
@@ -61,6 +62,7 @@ function RegisterContent() {
     formData.append("rt", rt);
     formData.append("rw", rw);
     formData.append("namaKelurahan", namaKelurahan);
+    formData.append("kecamatan", kecamatan);
     formData.append("kabupatenKota", kabupatenKota);
     formData.append("provinsi", provinsi);
 
@@ -112,6 +114,7 @@ function RegisterContent() {
         rt={rt}
         rw={rw}
         namaKelurahan={namaKelurahan}
+        kecamatan={kecamatan}
         kabupatenKota={kabupatenKota}
         provinsi={provinsi}
         noKtp={noKtp}
@@ -130,6 +133,7 @@ function RegisterContent() {
         onRtChange={setRt}
         onRwChange={setRw}
         onNamaKelurahanChange={setNamaKelurahan}
+        onKecamatanChange={setKecamatan}
         onKabupatenKotaChange={setKabupatenKota}
         onProvinsiChange={setProvinsi}
         onNoKtpChange={setNoKtp}

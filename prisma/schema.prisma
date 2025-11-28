@@ -28,6 +28,7 @@ model User {
   tanggalDaftar     DateTime? @default(now()) @db.Timestamp(6)
   role              String?   @db.VarChar(50)
   password          String    @db.VarChar(255)
+  kecamatan         String?   @db.VarChar(100)
   product           Product[] @relation("SellerProducts")
   toko              Toko?
 }
@@ -79,7 +80,6 @@ model Rating {
   namaPengunjung String    @db.VarChar(255)
   email          String?   @db.VarChar(255)
   noHP           String?   @db.VarChar(20)
-  provinsi       String?   @db.VarChar(100) @map("Provinsi")
   komentar       String?
   nilai          Int?
   tanggal        DateTime? @default(now()) @db.Timestamp(6)

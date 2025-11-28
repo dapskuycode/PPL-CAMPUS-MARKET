@@ -82,7 +82,7 @@ export function SellerSidebar({ user, ...props }: SellerSidebarProps) {
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <NavUser user={userData} onLogout={handleLogout} />
       </SidebarFooter>
     </Sidebar>
   );
