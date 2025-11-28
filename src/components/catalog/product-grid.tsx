@@ -2,7 +2,21 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StarRating } from "./star-rating";
 import Link from "next/link";
+import { useState } from "react";
+import { RatingFormModal } from "./rating-form-modal";
+
+interface Rating {
+  idRating: number;
+  nilai: number | null;
+  komentar: string | null;
+  namaPengunjung: string;
+  email: string | null;
+  noHP: string | null;
+  provinsi: string | null;
+  tanggal: string | null;
+}
 
 interface Product {
   idProduct: number;
@@ -27,6 +41,7 @@ interface Product {
     namaGambar: string;
     urutan: number | null;
   }[];
+  rating: Rating[];
 }
 
 interface ProductGridProps {
@@ -35,6 +50,17 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products, loading }: ProductGridProps) {
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
+
+  const handleRatingClick = (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProductId(productId);
+    setRatingModalOpen(true);
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -115,13 +141,47 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
               </div>
 
               {/* Price */}
-              <p className="text-xl font-bold text-primary">
+              <p className="text-xl font-bold text-primary mb-3">
                 Rp {product.harga.toLocaleString("id-ID")}
               </p>
+
+              {/* Star Rating - Clickable */}
+              <div
+                onClick={(e) => handleRatingClick(e, product.idProduct)}
+                className="cursor-pointer hover:opacity-75 transition-opacity"
+              >
+                {product.rating && product.rating.length > 0 ? (
+                  <StarRating
+                    ratings={product.rating}
+                    showCount={true}
+                    size={14}
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>⭐ Belum ada rating</span>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </Link>
       ))}
+
+      {/* Rating Form Modal */}
+      {selectedProductId && (
+        <RatingFormModal
+          isOpen={ratingModalOpen}
+          onClose={() => {
+            setRatingModalOpen(false);
+            setSelectedProductId(null);
+          }}
+          productId={selectedProductId}
+          productName={
+            products.find((p) => p.idProduct === selectedProductId)
+              ?.namaProduk || "Produk"
+          }
+        />
+      )}
     </div>
   );
 }

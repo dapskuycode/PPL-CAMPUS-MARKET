@@ -42,6 +42,17 @@ export async function GET(request: NextRequest) {
               urutan: "asc",
             },
           },
+          rating: {
+            select: {
+              idRating: true,
+              nilai: true,
+              komentar: true,
+              namaPengunjung: true,
+              email: true,
+              noHP: true,
+              tanggal: true,
+            },
+          },
         },
         orderBy: { tanggalUpload: "desc" },
       });
@@ -126,6 +137,17 @@ export async function GET(request: NextRequest) {
           },
           orderBy: {
             urutan: "asc",
+          },
+        },
+        rating: {
+          select: {
+            idRating: true,
+            nilai: true,
+            komentar: true,
+            namaPengunjung: true,
+            email: true,
+            noHP: true,
+            tanggal: true,
           },
         },
       },

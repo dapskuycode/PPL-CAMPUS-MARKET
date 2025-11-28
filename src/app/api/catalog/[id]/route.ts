@@ -29,6 +29,8 @@ export async function GET(
         seller: {
           select: {
             nama: true,
+            kabupatenKota: true,
+            provinsi: true,
             toko: {
               select: {
                 namaToko: true,
@@ -44,6 +46,17 @@ export async function GET(
           },
           orderBy: {
             urutan: "asc",
+          },
+        },
+        rating: {
+          select: {
+            idRating: true,
+            nilai: true,
+            komentar: true,
+            namaPengunjung: true,
+            email: true,
+            noHP: true,
+            tanggal: true,
           },
         },
       },

@@ -79,8 +79,11 @@ model Rating {
   namaPengunjung String    @db.VarChar(255)
   email          String?   @db.VarChar(255)
   noHP           String?   @db.VarChar(20)
+  provinsi       String?   @db.VarChar(100) @map("Provinsi")
   komentar       String?
   nilai          Int?
   tanggal        DateTime? @default(now()) @db.Timestamp(6)
   product        Product   @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+
+  @@map("Rating")
 }

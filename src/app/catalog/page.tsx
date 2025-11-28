@@ -15,6 +15,17 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
 
+interface Rating {
+  idRating: number;
+  nilai: number | null;
+  komentar: string | null;
+  namaPengunjung: string;
+  email: string | null;
+  noHP: string | null;
+  provinsi: string | null;
+  tanggal: string | null;
+}
+
 interface Product {
   idProduct: number;
   namaProduk: string;
@@ -38,12 +49,15 @@ interface Product {
     namaGambar: string;
     urutan: number | null;
   }[];
+  rating: Rating[];
 }
 
 export default function CatalogPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ nama?: string; role?: string } | null>(
+    null
+  );
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");

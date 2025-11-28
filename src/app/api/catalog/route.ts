@@ -55,6 +55,17 @@ export async function GET(request: NextRequest) {
             urutan: true,
           },
         },
+        rating: {
+          select: {
+            idRating: true,
+            nilai: true,
+            komentar: true,
+            namaPengunjung: true,
+            email: true,
+            noHP: true,
+            tanggal: true,
+          },
+        },
       },
       orderBy: {
         tanggalUpload: "desc",
