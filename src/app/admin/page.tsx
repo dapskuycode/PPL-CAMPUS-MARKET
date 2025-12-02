@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { AdminStats } from "@/components/admin/admin-stats";
+import { DashboardCharts } from "@/components/admin/dashboard-charts";
 import { PendingSellersTable } from "@/components/admin/pending-sellers-table";
+import { AdminReports } from "@/components/admin/admin-reports";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 interface Seller {
@@ -28,6 +30,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [pendingSellers, setPendingSellers] = useState<Seller[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -47,7 +50,23 @@ export default function AdminPage() {
 
     setUser(parsedUser);
     fetchPendingSellers();
+    fetchDashboardData();
   }, [router]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch("/api/admin/dashboard");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Gagal mengambil data dashboard");
+      }
+
+      setDashboardData(data);
+    } catch (err: any) {
+      console.error("Dashboard error:", err.message);
+    }
+  };
 
   const fetchPendingSellers = async () => {
     try {
@@ -110,7 +129,7 @@ export default function AdminPage() {
         user={{
           name: user?.nama || "Admin",
           email: user?.email || "",
-          avatar: "/avatars/admin.jpg",
+          avatar: "/avatars/admin.svg",
         }}
       />
       <SidebarInset>
@@ -119,8 +138,29 @@ export default function AdminPage() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
-                <AdminStats totalSellers={pendingSellers.length} pendingSellers={pendingSellers.length} verifiedSellers={0} totalProducts={0} />
+                <AdminStats 
+                  totalSellers={dashboardData?.sellerStats?.active || 0} 
+                  pendingSellers={pendingSellers.length} 
+                  verifiedSellers={0} 
+                  totalProducts={dashboardData?.productsByCategory?.reduce((sum: number, cat: any) => sum + cat.value, 0) || 0} 
+                />
               </div>
+              
+              {dashboardData && (
+                <div className="px-4 lg:px-6">
+                  <DashboardCharts
+                    productsByCategory={dashboardData.productsByCategory || []}
+                    shopsByProvince={dashboardData.shopsByProvince || []}
+                    sellerStats={dashboardData.sellerStats || { active: 0, inactive: 0 }}
+                    ratingStats={dashboardData.ratingStats || { total: 0, average: 0 }}
+                  />
+                </div>
+              )}
+              
+              <div className="px-4 lg:px-6">
+                <AdminReports />
+              </div>
+              
               <div className="px-4 lg:px-6">
                 {error && <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded">{error}</div>}
                 <PendingSellersTable sellers={pendingSellers} onVerify={handleVerify} />

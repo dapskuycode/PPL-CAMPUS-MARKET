@@ -2,13 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminStats } from "@/components/admin/admin-stats";
+import { PendingSellersTable } from "@/components/admin/pending-sellers-table";
 
 export default function AdminCategoriesPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [pendingSellers, setPendingSellers] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -22,7 +27,41 @@ export default function AdminCategoriesPage() {
       return;
     }
     setUser(parsedUser);
+    fetchPendingSellers();
   }, [router]);
+
+  const fetchPendingSellers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/admin/pending-sellers");
+      if (!response.ok) {
+        throw new Error("Failed to fetch pending sellers");
+      }
+      const data = await response.json();
+      setPendingSellers(data.data || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (sellerId: number) => {
+    try {
+      const response = await fetch(`/api/admin/pending-sellers/${sellerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "verified" }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to verify seller");
+      }
+      // Refresh the list
+      fetchPendingSellers();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
 
   if (!user) return null;
 

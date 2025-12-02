@@ -1,0 +1,114 @@
+
+> my-web@0.1.0 dev
+> next dev
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.107.188:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1100ms
+ GET /api/admin/dashboard 200 in 487ms (compile: 365ms, render: 122ms)
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ○ Compiling /admin ...
+ GET /api/admin/dashboard 200 in 249ms (compile: 9ms, render: 239ms)
+ GET /api/seller/dashboard?sellerId=2 200 in 361ms (compile: 334ms, render: 27ms)
+ GET /admin 200 in 9.8s (compile: 9.5s, render: 345ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/admin/report/sellers/route.ts:19:17)
+  17 |
+  18 |     // Create PDF document
+> 19 |     const doc = new PDFDocument({ bufferPages: true, size: "A4" });
+     |                 ^
+  20 |
+  21 |     // Set up fonts and styles
+  22 |     doc.fontSize(18).font("Helvetica-Bold").text("Laporan Daftar Akun Penjual", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/admin/report/sellers 500 in 1376ms (compile: 1109ms, render: 268ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/admin/report/shops-by-province/route.ts:27:17)
+  25 |
+  26 |     // Create PDF document
+> 27 |     const doc = new PDFDocument({ bufferPages: true, size: "A4" });
+     |                 ^
+  28 |
+  29 |     // Header
+  30 |     doc.fontSize(18).font("Helvetica-Bold").text("Laporan Daftar Penjual (Toko) Per Lokasi Provinsi", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/admin/report/shops-by-province 500 in 279ms (compile: 124ms, render: 155ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/admin/report/products-rating/route.ts:33:17)
+  31 |
+  32 |     // Create PDF document
+> 33 |     const doc = new PDFDocument({ bufferPages: true, size: "A4", margin: 30 });
+     |                 ^
+  34 |
+  35 |     // Header
+  36 |     doc.fontSize(16).font("Helvetica-Bold").text("Laporan Daftar Produk dan Rating", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/admin/report/products-rating 500 in 419ms (compile: 179ms, render: 240ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/seller/report/stock/route.ts:38:17)
+  36 |
+  37 |     // Create PDF document
+> 38 |     const doc = new PDFDocument({ bufferPages: true, size: "A4", margin: 30 });
+     |                 ^
+  39 |
+  40 |     // Header
+  41 |     doc.fontSize(16).font("Helvetica-Bold").text("Laporan Daftar Stok Produk", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/seller/report/stock?sellerId=2 500 in 344ms (compile: 163ms, render: 181ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/seller/report/rating/route.ts:50:17)
+  48 |
+  49 |     // Create PDF document
+> 50 |     const doc = new PDFDocument({ bufferPages: true, size: "A4", margin: 30 });
+     |                 ^
+  51 |
+  52 |     // Header
+  53 |     doc.fontSize(16).font("Helvetica-Bold").text("Laporan Produk Berdasarkan Rating", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/seller/report/rating?sellerId=2 500 in 287ms (compile: 105ms, render: 182ms)
+PDF error: Error: ENOENT: no such file or directory, open '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+    at GET (src/app/api/seller/report/low-stock/route.ts:42:17)
+  40 |
+  41 |     // Create PDF document
+> 42 |     const doc = new PDFDocument({ bufferPages: true, size: "A4", margin: 30 });
+     |                 ^
+  43 |
+  44 |     // Header
+  45 |     doc.fontSize(16).font("Helvetica-Bold").text("Laporan Stok Barang Harus Segera Dipesan", { align: "center" }); {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/ROOT/node_modules/pdfkit/js/data/Helvetica.afm'
+}
+ GET /api/seller/report/low-stock?sellerId=2 500 in 491ms (compile: 291ms, render: 200ms)
+ GET /api/admin/dashboard 200 in 70ms (compile: 10ms, render: 59ms)
+ GET /api/admin/pending-sellers 200 in 500ms (compile: 392ms, render: 108ms)
+ GET /avatars/admin.jpg 404 in 757ms (compile: 694ms, render: 63ms)
+ GET /api/admin/dashboard 200 in 30ms (compile: 4ms, render: 26ms)
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[?25h

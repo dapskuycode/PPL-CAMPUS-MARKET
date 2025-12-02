@@ -22,7 +22,7 @@ interface Seller {
 
 interface PendingSellersTableProps {
   sellers: Seller[];
-  onVerify: (idUser: number, status: "verified" | "rejected") => void;
+  onVerify: (idUser: number) => void | Promise<void>;
 }
 
 export function PendingSellersTable({ sellers, onVerify }: PendingSellersTableProps) {
@@ -83,11 +83,8 @@ export function PendingSellersTable({ sellers, onVerify }: PendingSellersTablePr
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-2 justify-end">
-                    <Button size="sm" variant="default" onClick={() => onVerify(seller.idUser, "verified")}>
+                    <Button size="sm" variant="default" onClick={() => onVerify(seller.idUser)}>
                       Verifikasi
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => onVerify(seller.idUser, "rejected")}>
-                      Tolak
                     </Button>
                   </div>
                 </TableCell>
