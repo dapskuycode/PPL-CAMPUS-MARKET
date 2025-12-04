@@ -21,29 +21,40 @@ model User {
   noKtp             String?   @db.VarChar(30)
   fotoKtp           String?   @db.VarChar(255)
   fileUploadPIC     String?   @db.VarChar(255)
-  statusVerifikasi  String?   @db.VarChar(20)
+  statusVerifikasi  String?   @default("pending") @db.VarChar(20)
   tanggalVerifikasi DateTime? @db.Timestamp(6)
-  statusAkun        String?   @db.VarChar(20)
+  statusAkun        String?   @default("aktif") @db.VarChar(20)
   tanggalDaftar     DateTime? @default(now()) @db.Timestamp(6)
-  role              String?   @db.VarChar(50)
+  role              String    @default("pembeli") @db.VarChar(50)
   password          String    @db.VarChar(255)
   kecamatan         String?   @db.VarChar(100)
   product           Product[] @relation("SellerProducts")
   toko              Toko?
+
+  @@index([email])
+  @@index([role])
+  @@index([statusVerifikasi])
+  @@map("users")
 }
 
 model Toko {
   idToko           Int     @id @default(autoincrement())
   namaToko         String  @db.VarChar(255)
   idSeller         Int     @unique
-  deskripsiSingkat String?
-  seller           User    @relation(fields: [idSeller], references: [idUser])
+  deskripsiSingkat String? @db.Text
+  seller           User    @relation(fields: [idSeller], references: [idUser], onDelete: Cascade)
+
+  @@index([namaToko])
+  @@map("toko")
 }
 
 model Category {
   idCategory   Int       @id @default(autoincrement())
-  namaKategori String    @db.VarChar(255)
+  namaKategori String    @unique @db.VarChar(255)
   product      Product[]
+
+  @@index([namaKategori])
+  @@map("categories")
 }
 
 model Product {
@@ -51,38 +62,49 @@ model Product {
   idSeller      Int
   idCategory    Int?
   namaProduk    String         @db.VarChar(255)
-  deskripsi     String?
+  deskripsi     String?        @db.Text
   harga         Decimal        @db.Decimal(15, 2)
-  stok          Int?           @default(0)
+  stok          Int            @default(0)
   berat         Decimal?       @db.Decimal(10, 2)
-  kondisi       String?        @db.VarChar(10)
+  kondisi       String         @default("baru") @db.VarChar(10)
   lokasi        String?        @db.VarChar(255)
-  tanggalUpload DateTime?      @default(now()) @db.Timestamp(6)
-  statusProduk  String?        @default("aktif") @db.VarChar(20)
-  category      Category?      @relation(fields: [idCategory], references: [idCategory])
+  tanggalUpload DateTime       @default(now()) @db.Timestamp(6)
+  statusProduk  String         @default("aktif") @db.VarChar(20)
+  category      Category?      @relation(fields: [idCategory], references: [idCategory], onDelete: SetNull)
   seller        User           @relation("SellerProducts", fields: [idSeller], references: [idUser], onDelete: Cascade)
   productImage  ProductImage[]
   rating        Rating[]
+
+  @@index([idSeller])
+  @@index([idCategory])
+  @@index([statusProduk])
+  @@index([namaProduk])
+  @@map("products")
 }
 
 model ProductImage {
   idImage    Int     @id @default(autoincrement())
   idProduct  Int
   namaGambar String  @db.VarChar(255)
-  urutan     Int?
+  urutan     Int     @default(1)
   product    Product @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+
+  @@index([idProduct])
+  @@map("product_images")
 }
 
 model Rating {
-  idRating       Int       @id @default(autoincrement())
+  idRating       Int      @id @default(autoincrement())
   idProduct      Int
-  namaPengunjung String    @db.VarChar(255)
-  email          String?   @db.VarChar(255)
-  noHP           String?   @db.VarChar(20)
-  komentar       String?
-  nilai          Int?
-  tanggal        DateTime? @default(now()) @db.Timestamp(6)
-  product        Product   @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+  namaPengunjung String   @db.VarChar(255)
+  email          String?  @db.VarChar(255)
+  noHP           String?  @db.VarChar(20)
+  komentar       String?  @db.Text
+  nilai          Int
+  tanggal        DateTime @default(now()) @db.Timestamp(6)
+  product        Product  @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
 
-  @@map("Rating")
+  @@index([idProduct])
+  @@index([nilai])
+  @@map("ratings")
 }
