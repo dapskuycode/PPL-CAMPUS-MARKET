@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireSeller } from "@/lib/auth";
 
 // GET - Ambil semua produk seller
 export async function GET(request: NextRequest) {
@@ -40,26 +41,49 @@ export async function GET(request: NextRequest) {
 
 // POST - Tambah produk baru
 export async function POST(request: NextRequest) {
+  // Require seller authentication
+  const authResult = await requireSeller(request);
+  if (authResult instanceof Response) {
+    return authResult;
+  }
+
   try {
     const body = await request.json();
-    const { namaProduk, deskripsi, harga, stok, kondisi, statusProduk, idCategory, idSeller, images } = body;
+    const { namaProduk, deskripsi, harga, stok, kondisi, idCategory, images } = body;
 
     // Validasi input
-    if (!namaProduk || !harga || !idCategory || !idSeller) {
+    if (!namaProduk || !harga || !idCategory) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Create product
+    // Validasi numeric inputs
+    const parsedHarga = parseFloat(harga);
+    const parsedStok = parseInt(stok) || 0;
+    const parsedCategory = parseInt(idCategory);
+
+    if (isNaN(parsedHarga) || parsedHarga <= 0) {
+      return NextResponse.json({ error: "Harga harus berupa angka positif" }, { status: 400 });
+    }
+
+    if (isNaN(parsedStok) || parsedStok < 0) {
+      return NextResponse.json({ error: "Stok harus berupa angka non-negatif" }, { status: 400 });
+    }
+
+    if (isNaN(parsedCategory)) {
+      return NextResponse.json({ error: "Kategori tidak valid" }, { status: 400 });
+    }
+
+    // Create product with authenticated seller's ID
     const product = await prisma.product.create({
       data: {
         namaProduk,
         deskripsi: deskripsi || null,
-        harga: parseFloat(harga),
-        stok: parseInt(stok) || 0,
+        harga: parsedHarga,
+        stok: parsedStok,
         kondisi: kondisi || "baru",
         statusProduk: "aktif",
-        idCategory: parseInt(idCategory),
-        idSeller: parseInt(idSeller),
+        idCategory: parsedCategory,
+        idSeller: authResult.idUser, // Use authenticated user's ID
         tanggalUpload: new Date(),
         productImage: {
           create: (images || []).map((filename: string, index: number) => ({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { authFetch, getAuthHeaders } from "@/lib/fetch-helper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,8 +60,6 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
     e.preventDefault();
     setLoading(true);
 
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-
     try {
       // Upload images first if there are new images
       let imageFilenames: string[] = [];
@@ -72,11 +71,13 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
 
         const uploadResponse = await fetch("/api/upload", {
           method: "POST",
+          headers: getAuthHeaders(),
           body: uploadFormData,
         });
 
         if (!uploadResponse.ok) {
-          throw new Error("Failed to upload images");
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.error || "Failed to upload images");
         }
 
         const uploadResult = await uploadResponse.json();
@@ -86,13 +87,12 @@ export function ProductForm({ productId, onSuccess, onCancel }: ProductFormProps
       const url = productId ? `/api/products/${productId}` : "/api/products";
       const method = productId ? "PUT" : "POST";
 
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           images: imageFilenames,
-          idSeller: user.idUser,
         }),
       });
 

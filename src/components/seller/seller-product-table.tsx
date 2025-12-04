@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { authFetch } from "@/lib/fetch-helper";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +33,7 @@ export function SellerProductTable() {
   const fetchProducts = async () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     try {
-      const response = await fetch(`/api/products?sellerId=${user.idUser}`);
+      const response = await authFetch(`/api/products?sellerId=${user.idUser}`);
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -55,7 +56,7 @@ export function SellerProductTable() {
     if (!deletingProduct) return;
 
     try {
-      const response = await fetch(`/api/products/${deletingProduct}`, {
+      const response = await authFetch(`/api/products/${deletingProduct}`, {
         method: "DELETE",
       });
 
