@@ -1,8 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
+const { prisma } = require("./src/lib/prisma");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
-
-const prisma = new PrismaClient();
 
 async function createNewAdmin() {
   try {

@@ -1,7 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
+const { prisma } = require("./src/lib/prisma");
 require("dotenv").config();
-
-const prisma = new PrismaClient();
 
 async function updateAdmin() {
   try {

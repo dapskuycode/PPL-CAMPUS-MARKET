@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +10,6 @@ export async function POST(request: NextRequest) {
       namaPengunjung,
       noHP,
       email,
-      provinsi,
       nilai,
       komentar,
     } = body;
@@ -23,7 +20,6 @@ export async function POST(request: NextRequest) {
       !namaPengunjung ||
       !noHP ||
       !email ||
-      !provinsi ||
       !nilai ||
       !komentar
     ) {
@@ -69,7 +65,6 @@ export async function POST(request: NextRequest) {
         namaPengunjung,
         noHP,
         email,
-        provinsi,
         nilai,
         komentar,
         tanggal: new Date(),
