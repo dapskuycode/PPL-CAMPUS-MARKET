@@ -8,29 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
-
-interface Product {
-  idProduct: number;
-  namaProduk: string;
-  deskripsi: string | null;
-  harga: number;
-  stok: number | null;
-  kondisi: string | null;
-  statusProduk: string | null;
-  category: {
-    namaKategori: string;
-  } | null;
-  seller: {
-    nama: string;
-    toko: {
-      namaToko: string;
-    } | null;
-  };
-  productImage: {
-    namaGambar: string;
-    urutan: number | null;
-  }[];
-}
+import { Product } from "@/types/product";
 
 export default function CatalogPage() {
   const router = useRouter();

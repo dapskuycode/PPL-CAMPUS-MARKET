@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { ProductGrid } from "@/components/catalog/product-grid";
@@ -14,45 +14,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
+import { Product, Rating } from "@/types/product";
 
-interface Rating {
-  idRating: number;
-  nilai: number | null;
-  komentar: string | null;
-  namaPengunjung: string;
-  email: string | null;
-  noHP: string | null;
-  provinsi: string | null;
-  tanggal: string | null;
-}
-
-interface Product {
-  idProduct: number;
-  namaProduk: string;
-  deskripsi: string | null;
-  harga: number;
-  stok: number | null;
-  kondisi: string | null;
-  statusProduk: string | null;
-  category: {
-    namaKategori: string;
-  } | null;
-  seller: {
-    nama: string;
-    kabupatenKota: string;
-    provinsi: string;
-    toko: {
-      namaToko: string;
-    } | null;
-  };
-  productImage: {
-    namaGambar: string;
-    urutan: number | null;
-  }[];
-  rating: Rating[];
-}
-
-export default function CatalogPage() {
+function CatalogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<{ nama?: string; role?: string } | null>(
@@ -177,5 +141,17 @@ export default function CatalogPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Memuat...</p>
+      </div>
+    }>
+      <CatalogContent />
+    </Suspense>
   );
 }

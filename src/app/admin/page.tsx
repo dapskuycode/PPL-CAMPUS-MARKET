@@ -86,12 +86,17 @@ export default function AdminPage() {
     }
   };
 
-  const handleVerify = async (idUser: number, status: "verified" | "rejected") => {
+  const handleVerify = async (idUser: number, status: "verified" | "rejected", reason?: string) => {
     try {
+      const body: any = { idUser, status };
+      if (status === "rejected" && reason) {
+        body.reason = reason;
+      }
+
       const response = await authFetch("/api/admin/verify-seller", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idUser, status }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -102,7 +107,12 @@ export default function AdminPage() {
 
       // Refresh list
       fetchPendingSellers();
-      alert(`Penjual berhasil ${status === "verified" ? "diverifikasi" : "ditolak"}`);
+      
+      const successMessage = status === "verified" 
+        ? "Penjual berhasil diverifikasi. Email notifikasi telah dikirim."
+        : "Penjual ditolak. Email penolakan dengan alasan telah dikirim.";
+      
+      alert(successMessage);
     } catch (err: any) {
       alert(err.message);
     }

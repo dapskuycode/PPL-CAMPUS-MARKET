@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   // Require admin authentication
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { idUser, status } = body;
+    const { idUser, status, reason } = body;
 
     if (!idUser || !status) {
       return NextResponse.json(
@@ -27,6 +28,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If rejected, reason should be provided
+    if (status === "rejected" && !reason) {
+      return NextResponse.json(
+        { error: "Alasan penolakan harus diisi" },
+        { status: 400 }
+      );
+    }
+
     // Update user verification status
     const updatedUser = await prisma.user.update({
       where: { idUser: parseInt(idUser) },
@@ -36,11 +45,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send verification email notification
+    try {
+      await sendVerificationEmail(
+        updatedUser.email,
+        updatedUser.nama,
+        status,
+        reason
+      );
+    } catch (emailError) {
+      console.error("Email notification failed (non-critical):", emailError);
+      // Continue execution even if email fails
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: `Penjual berhasil ${status === "verified" ? "diverifikasi" : "ditolak"}`,
         user: updatedUser,
+        emailSent: true,
       },
       { status: 200 }
     );

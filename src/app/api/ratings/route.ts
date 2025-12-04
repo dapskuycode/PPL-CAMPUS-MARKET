@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendRatingThankYouEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,11 +87,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send thank you email notification
+    try {
+      await sendRatingThankYouEmail(
+        email,
+        namaPengunjung,
+        product.namaProduk,
+        nilai
+      );
+    } catch (emailError) {
+      console.error("Email notification failed (non-critical):", emailError);
+      // Continue execution even if email fails
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: "Rating berhasil disimpan",
         rating,
+        emailSent: true,
       },
       { status: 201 }
     );

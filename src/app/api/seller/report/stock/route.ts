@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
                     <td>${product.stok || 0}</td>
                     <td>${product.namaProduk || ""}</td>
                     <td>${avgRating}⭐</td>
-                    <td>Rp ${product.harga.toLocaleString("id-ID")}</td>
+                    <td>Rp ${new Intl.NumberFormat("id-ID").format(Number(product.harga))}</td>
                   </tr>
                 `;
               }).join("")}
