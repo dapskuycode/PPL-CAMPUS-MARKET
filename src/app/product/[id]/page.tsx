@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { authFetch } from "@/lib/fetch-helper";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
 interface ProductDetail {
@@ -36,6 +39,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in (optional for viewing)
@@ -85,6 +89,45 @@ export default function ProductDetailPage() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     router.push("/");
+  };
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      if (confirm("Anda harus login terlebih dahulu. Login sekarang?")) {
+        router.push("/login");
+      }
+      return;
+    }
+
+    if (!product || product.stok === null || product.stok < 1) {
+      alert("Produk tidak tersedia atau stok habis");
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      const response = await authFetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idProduct: product.idProduct,
+          quantity: 1,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Produk berhasil ditambahkan ke keranjang!");
+      } else {
+        alert(data.error || "Gagal menambahkan ke keranjang");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Terjadi kesalahan saat menambahkan ke keranjang");
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   if (loading) {
@@ -297,6 +340,30 @@ export default function ProductDetailPage() {
                 })}
               </p>
             )}
+
+            {/* Add to Cart Button */}
+            <div className="border-t border-gray-200 pt-6">
+              <Button
+                onClick={handleAddToCart}
+                disabled={addingToCart || !product.stok || product.stok < 1 || product.statusProduk !== "aktif"}
+                size="lg"
+                className="w-full"
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {addingToCart
+                  ? "Menambahkan..."
+                  : !product.stok || product.stok < 1
+                  ? "Stok Habis"
+                  : product.statusProduk !== "aktif"
+                  ? "Produk Tidak Aktif"
+                  : "Tambah ke Keranjang"}
+              </Button>
+              {!user && (
+                <p className="text-sm text-center text-muted-foreground mt-2">
+                  Login terlebih dahulu untuk berbelanja
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </main>

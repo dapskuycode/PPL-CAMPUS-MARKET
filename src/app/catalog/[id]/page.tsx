@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/catalog/star-rating";
 import { RatingFormModal } from "@/components/catalog/rating-form-modal";
+import { authFetch } from "@/lib/fetch-helper";
+import { ShoppingCart } from "lucide-react";
 
 interface Rating {
   idRating: number;
@@ -57,6 +59,7 @@ export default function ProductDetailPage() {
     null
   );
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in (optional for viewing)
@@ -107,6 +110,61 @@ export default function ProductDetailPage() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     router.push("/login");
+  };
+
+  const handleAddToCart = async () => {
+    // Cek apakah user sudah login
+    if (!user) {
+      if (confirm("Anda harus login terlebih dahulu untuk berbelanja. Login sekarang?")) {
+        router.push("/login");
+      }
+      return;
+    }
+
+    // Validasi stok
+    if (!product || product.stok === null || product.stok <= 0) {
+      alert("Produk ini sedang tidak tersedia atau stok habis.");
+      return;
+    }
+
+    // Validasi status produk
+    if (product.statusProduk?.toLowerCase() !== "aktif") {
+      alert("Produk ini sedang tidak aktif.");
+      return;
+    }
+
+    setAddingToCart(true);
+
+    try {
+      const response = await authFetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idProduct: product.idProduct,
+          quantity: 1,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Gagal menambahkan ke keranjang");
+      }
+
+      alert("Produk berhasil ditambahkan ke keranjang!");
+      
+      // Redirect ke halaman cart setelah berhasil
+      if (confirm("Lihat keranjang sekarang?")) {
+        router.push("/cart");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Terjadi kesalahan saat menambahkan ke keranjang");
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   if (loading) {
@@ -324,6 +382,35 @@ export default function ProductDetailPage() {
                     )}
                   </p>
                 )}
+
+                {/* Add to Cart Button */}
+                <div className="border-t pt-6 space-y-3">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={
+                      addingToCart ||
+                      !product.stok ||
+                      product.stok <= 0 ||
+                      product.statusProduk?.toLowerCase() !== "aktif"
+                    }
+                    className="w-full"
+                    size="lg"
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    {addingToCart
+                      ? "Menambahkan..."
+                      : !product.stok || product.stok <= 0
+                      ? "Stok Habis"
+                      : product.statusProduk?.toLowerCase() !== "aktif"
+                      ? "Produk Tidak Aktif"
+                      : "Tambah ke Keranjang"}
+                  </Button>
+                  {!user && (
+                    <p className="text-sm text-center text-muted-foreground">
+                      Login terlebih dahulu untuk berbelanja
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>

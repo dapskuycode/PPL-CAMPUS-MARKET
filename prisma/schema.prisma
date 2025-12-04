@@ -30,6 +30,8 @@ model User {
   kecamatan         String?   @db.VarChar(100)
   product           Product[] @relation("SellerProducts")
   toko              Toko?
+  cart              Cart[]
+  order             Order[]
 
   @@index([email])
   @@index([role])
@@ -74,6 +76,8 @@ model Product {
   seller        User           @relation("SellerProducts", fields: [idSeller], references: [idUser], onDelete: Cascade)
   productImage  ProductImage[]
   rating        Rating[]
+  cart          Cart[]
+  orderItem     OrderItem[]
 
   @@index([idSeller])
   @@index([idCategory])
@@ -107,4 +111,52 @@ model Rating {
   @@index([idProduct])
   @@index([nilai])
   @@map("ratings")
+}
+
+model Cart {
+  idCart     Int      @id @default(autoincrement())
+  idUser     Int
+  idProduct  Int
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  user       User     @relation(fields: [idUser], references: [idUser], onDelete: Cascade)
+  product    Product  @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+
+  @@unique([idUser, idProduct])
+  @@index([idUser])
+  @@index([idProduct])
+  @@map("cart")
+}
+
+model Order {
+  idOrder         Int         @id @default(autoincrement())
+  idUser          Int
+  totalPrice      Decimal     @db.Decimal(15, 2)
+  status          String      @default("pending") @db.VarChar(50)
+  paymentMethod   String?     @db.VarChar(50)
+  shippingAddress String?     @db.Text
+  orderDate       DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime    @updatedAt @db.Timestamp(6)
+  orderNotes      String?     @db.Text
+  user            User        @relation(fields: [idUser], references: [idUser], onDelete: Cascade)
+  orderItem       OrderItem[]
+
+  @@index([idUser])
+  @@index([status])
+  @@index([orderDate])
+  @@map("orders")
+}
+
+model OrderItem {
+  idOrderItem Int     @id @default(autoincrement())
+  idOrder     Int
+  idProduct   Int
+  quantity    Int
+  price       Decimal @db.Decimal(15, 2)
+  order       Order   @relation(fields: [idOrder], references: [idOrder], onDelete: Cascade)
+  product     Product @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade)
+
+  @@index([idOrder])
+  @@index([idProduct])
+  @@map("order_items")
 }
