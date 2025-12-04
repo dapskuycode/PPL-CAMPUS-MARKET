@@ -35,7 +35,8 @@ export function SellerProductTable() {
     try {
       const response = await authFetch(`/api/products?sellerId=${user.idUser}`);
       const data = await response.json();
-      setProducts(data);
+      // Handle new pagination response format
+      setProducts(data.products || data);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {

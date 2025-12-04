@@ -136,12 +136,13 @@ export function RegisterForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field>
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input id="password" type="password" value={password} onChange={(e) => onPasswordChange(e.target.value)} required minLength={6} />
+                  <Input id="password" type="password" value={password} onChange={(e) => onPasswordChange(e.target.value)} required minLength={8} />
+                  <p className="text-xs text-gray-500 mt-1">Min 8 karakter, harus ada huruf besar, angka, dan karakter khusus</p>
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="confirmPassword">Konfirmasi Password</FieldLabel>
-                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => onConfirmPasswordChange(e.target.value)} required minLength={6} />
+                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => onConfirmPasswordChange(e.target.value)} required minLength={8} />
                 </Field>
               </div>
             </div>

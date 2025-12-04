@@ -32,8 +32,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Data wajib tidak lengkap" }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Password minimal 6 karakter" }, { status: 400 });
+    // Strengthen password requirements
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Password minimal 8 karakter" }, { status: 400 });
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasUpperCase || !hasNumber || !hasSpecialChar) {
+      return NextResponse.json(
+        { error: "Password harus mengandung huruf besar, angka, dan karakter khusus" },
+        { status: 400 }
+      );
     }
 
     // Check if email already exists

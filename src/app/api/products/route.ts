@@ -2,17 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSeller } from "@/lib/auth";
 
-// GET - Ambil semua produk seller
+// GET - Ambil semua produk seller dengan pagination
 export async function GET(request: NextRequest) {
   try {
     const sellerId = request.nextUrl.searchParams.get("sellerId");
+    const page = parseInt(request.nextUrl.searchParams.get("page") || "1");
+    const limit = parseInt(request.nextUrl.searchParams.get("limit") || "10");
 
     if (!sellerId) {
       return NextResponse.json({ error: "Seller ID required" }, { status: 400 });
     }
 
+    const skip = (page - 1) * limit;
+    const where = { idSeller: parseInt(sellerId) };
+
+    // Get total count
+    const totalProducts = await prisma.product.count({ where });
+
     const products = await prisma.product.findMany({
-      where: { idSeller: parseInt(sellerId) },
+      where,
+      skip,
+      take: limit,
       include: {
         category: {
           select: {
@@ -32,7 +42,18 @@ export async function GET(request: NextRequest) {
       orderBy: { tanggalUpload: "desc" },
     });
 
-    return NextResponse.json(products);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    return NextResponse.json({
+      success: true,
+      products,
+      pagination: {
+        page,
+        limit,
+        total: totalProducts,
+        totalPages,
+      },
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

@@ -5,6 +5,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const categoriesParam = searchParams.get("categories");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "12");
+    const skip = (page - 1) * limit;
 
     // Fetch all categories
     const categories = await prisma.category.findMany({
@@ -23,9 +26,16 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Fetch products with filters
+    // Get total count for pagination
+    const totalProducts = await prisma.product.count({
+      where: productFilter,
+    });
+
+    // Fetch products with filters and pagination
     const products = await prisma.product.findMany({
       where: productFilter,
+      skip,
+      take: limit,
       include: {
         category: {
           select: {
@@ -70,11 +80,19 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const totalPages = Math.ceil(totalProducts / limit);
+
     return NextResponse.json(
       {
         success: true,
         categories,
         products,
+        pagination: {
+          page,
+          limit,
+          total: totalProducts,
+          totalPages,
+        },
       },
       { status: 200 }
     );
@@ -85,59 +103,6 @@ export async function GET(request: NextRequest) {
         error: "Terjadi kesalahan saat mengambil data katalog",
         details: error.message,
       },
-      { status: 500 }
-    );
-  }
-}
-
-// Post - tambahkan produk baru
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const {
-      namaProduk,
-      deskripsiProduk,
-      harga,
-      berat,
-      kondisi,
-      lokasi,
-      stok,
-      idCategory,
-      idSeller,
-      tanggalUpload,
-    } = body;
-
-    // Validate required fields
-    if (!namaProduk || !harga || !stok || !idCategory || !idSeller) {
-      return NextResponse.json(
-        {
-          error: "Nama produk, harga, stok, kategori, dan penjual harus diisi",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Create new product
-    const product = await prisma.product.create({
-      data: {
-        namaProduk,
-        deskripsi: deskripsiProduk || null,
-        harga,
-        stok,
-        berat,
-        kondisi,
-        lokasi,
-        idCategory,
-        idSeller,
-        tanggalUpload: tanggalUpload ? new Date(tanggalUpload) : new Date(),
-        statusProduk: "aktif",
-      },
-    });
-    return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    console.error("Error adding new product:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan saat menambahkan produk" },
       { status: 500 }
     );
   }

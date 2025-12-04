@@ -58,6 +58,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for duplicate rating (same email + product)
+    const existingRating = await prisma.rating.findFirst({
+      where: {
+        idProduct,
+        email,
+      },
+    });
+
+    if (existingRating) {
+      return NextResponse.json(
+        { error: "Anda sudah memberikan rating untuk produk ini" },
+        { status: 409 }
+      );
+    }
+
     // Create rating
     const rating = await prisma.rating.create({
       data: {
