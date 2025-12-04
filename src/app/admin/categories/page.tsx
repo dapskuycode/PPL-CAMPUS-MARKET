@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch } from "@/lib/fetch-helper";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
@@ -33,7 +34,7 @@ export default function AdminCategoriesPage() {
   const fetchPendingSellers = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/pending-sellers");
+      const response = await authFetch("/api/admin/pending-sellers");
       if (!response.ok) {
         throw new Error("Failed to fetch pending sellers");
       }

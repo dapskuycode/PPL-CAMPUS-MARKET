@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch } from "@/lib/fetch-helper";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { AdminStats } from "@/components/admin/admin-stats";
@@ -55,7 +56,7 @@ export default function AdminPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("/api/admin/dashboard");
+      const response = await authFetch("/api/admin/dashboard");
       const data = await response.json();
 
       if (!response.ok) {
@@ -70,7 +71,7 @@ export default function AdminPage() {
 
   const fetchPendingSellers = async () => {
     try {
-      const response = await fetch("/api/admin/pending-sellers");
+      const response = await authFetch("/api/admin/pending-sellers");
       const data = await response.json();
 
       if (!response.ok) {
@@ -87,7 +88,7 @@ export default function AdminPage() {
 
   const handleVerify = async (idUser: number, status: "verified" | "rejected") => {
     try {
-      const response = await fetch("/api/admin/verify-seller", {
+      const response = await authFetch("/api/admin/verify-seller", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idUser, status }),
