@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { CategoryBrowse } from "@/components/catalog/category-browse";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +17,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
 import { Product, Rating } from "@/types/product";
 
+interface Category {
+  idCategory: number;
+  namaKategori: string;
+}
+
 function CatalogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,8 +29,10 @@ function CatalogContent() {
     null
   );
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -32,28 +40,88 @@ function CatalogContent() {
       setUser(JSON.parse(userData));
     }
 
-    // Read search parameter dari URL
-    const searchParam = searchParams.get("search");
-    console.log("[CatalogPage] Search param from URL:", searchParam);
+    // Fetch categories
+    fetchCategories();
 
-    if (searchParam) {
-      setSearchQuery(searchParam);
-      fetchProducts(searchParam);
-    } else {
-      fetchProducts();
-    }
+    // Read parameters dari URL
+    const searchParam = searchParams.get("search");
+    const categoryParam = searchParams.get("category");
+
+    console.log("[CatalogPage] Search param from URL:", searchParam);
+    console.log("[CatalogPage] Category param from URL:", categoryParam);
+
+    // Validate and clean parameters
+    const validSearchParam =
+      searchParam && searchParam !== "undefined" ? searchParam : "";
+    const validCategoryParam =
+      categoryParam &&
+      categoryParam !== "undefined" &&
+      !isNaN(Number(categoryParam))
+        ? categoryParam
+        : "";
+
+    setSearchQuery(validSearchParam);
+    setSelectedCategory(validCategoryParam);
+
+    // Fetch products dengan filter
+    fetchProducts(validSearchParam, validCategoryParam);
   }, [searchParams]);
 
-  const fetchProducts = async (query: string = "") => {
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories");
+      const data = await response.json();
+      if (response.ok) {
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  const fetchProducts = async (query: string = "", categoryId: string = "") => {
     try {
       setLoading(true);
-      const url = query
-        ? `/api/catalog/search?q=${encodeURIComponent(query)}`
-        : "/api/catalog";
-      console.log("Fetching products from:", url);
+
+      console.log(
+        "[fetchProducts] Called with query:",
+        query,
+        "categoryId:",
+        categoryId
+      );
+
+      // Build URL dengan parameter
+      let url = "/api/catalog";
+      const params = new URLSearchParams();
+
+      if (query && query.trim() !== "") {
+        params.append("search", query);
+        console.log("[fetchProducts] Added search param:", query);
+      }
+
+      // Validate categoryId is a valid number before adding to params
+      if (
+        categoryId &&
+        categoryId.trim() !== "" &&
+        !isNaN(Number(categoryId))
+      ) {
+        params.append("categories", categoryId);
+        console.log("[fetchProducts] Added categories param:", categoryId);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      console.log("[fetchProducts] Final URL:", url);
       const response = await fetch(url);
       const data = await response.json();
-      console.log("Response:", response.ok, "Data:", data);
+      console.log(
+        "[fetchProducts] Response OK:",
+        response.ok,
+        "Products count:",
+        data.products?.length
+      );
       if (response.ok) {
         setProducts(data.products || []);
       } else {
@@ -94,12 +162,36 @@ function CatalogContent() {
                 <CardDescription className="text-base mt-1">
                   {searchQuery
                     ? `Hasil pencarian untuk: "${searchQuery}"`
+                    : selectedCategory
+                    ? `Menampilkan produk kategori: ${
+                        categories.find(
+                          (c) => c.idCategory === parseInt(selectedCategory)
+                        )?.namaKategori || "..."
+                      }`
                     : "Jelajahi semua produk yang tersedia di Campus Market"}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
         </Card>
+
+        {/* Category Browse Section */}
+        {!searchQuery && !selectedCategory && (
+          <CategoryBrowse categories={categories} />
+        )}
+
+        {/* Selected Category Info with Clear Filter */}
+        {selectedCategory && !searchQuery && (
+          <div className="mb-6 flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/catalog")}
+            >
+              ← Lihat Semua Kategori
+            </Button>
+          </div>
+        )}
 
         {/* Products Grid */}
         {loading ? (
@@ -146,11 +238,13 @@ function CatalogContent() {
 
 export default function CatalogPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Memuat...</p>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <p className="text-muted-foreground">Memuat...</p>
+        </div>
+      }
+    >
       <CatalogContent />
     </Suspense>
   );

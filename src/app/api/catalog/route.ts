@@ -31,10 +31,16 @@ export async function GET(request: NextRequest) {
 
     // Category filter
     if (categoriesParam) {
-      const categoryIds = categoriesParam.split(",").map((id) => parseInt(id));
-      productFilter.idCategory = {
-        in: categoryIds,
-      };
+      const categoryIds = categoriesParam
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id) && id > 0); // Filter out invalid IDs
+
+      if (categoryIds.length > 0) {
+        productFilter.idCategory = {
+          in: categoryIds,
+        };
+      }
     }
 
     // Search by product name
@@ -64,14 +70,14 @@ export async function GET(request: NextRequest) {
     // Seller/Location filters
     if (namaToko || kabupatenKota || provinsi) {
       productFilter.seller = {};
-      
+
       if (kabupatenKota) {
         productFilter.seller.kabupatenKota = {
           contains: kabupatenKota,
           mode: "insensitive",
         };
       }
-      
+
       if (provinsi) {
         productFilter.seller.provinsi = {
           contains: provinsi,
@@ -158,9 +164,13 @@ export async function GET(request: NextRequest) {
       products = products
         .map((product: any) => {
           const ratings = product.rating || [];
-          const avgRating = ratings.length > 0 
-            ? ratings.reduce((sum: number, r: any) => sum + (r.nilai || 0), 0) / ratings.length 
-            : 0;
+          const avgRating =
+            ratings.length > 0
+              ? ratings.reduce(
+                  (sum: number, r: any) => sum + (r.nilai || 0),
+                  0
+                ) / ratings.length
+              : 0;
           return { ...product, avgRating };
         })
         .sort((a: any, b: any) => b.avgRating - a.avgRating);
