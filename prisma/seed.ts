@@ -87,7 +87,8 @@ async function seedUsers() {
       toko: {
         create: {
           namaToko: "Toko Elektronik Budi",
-          deskripsiSingkat: "Menjual berbagai elektronik berkualitas dengan harga terjangkau",
+          deskripsiSingkat:
+            "Menjual berbagai elektronik berkualitas dengan harga terjangkau",
         },
       },
     },
@@ -207,61 +208,172 @@ async function seedProducts() {
     return;
   }
 
-  const products = [
+  const productsWithImages = [
     {
-      namaProduk: "Laptop ASUS ROG",
-      deskripsi: "Laptop gaming dengan spesifikasi tinggi, RAM 16GB, SSD 512GB, RTX 3060",
-      harga: 15000000,
-      stok: 5,
-      kondisi: "baru",
-      idSeller: sellers[0].idUser,
-      idCategory: categories.find((c) => c.namaKategori === "Elektronik")?.idCategory,
+      product: {
+        namaProduk: "Laptop ASUS ROG",
+        deskripsi:
+          "Laptop gaming dengan spesifikasi tinggi, RAM 16GB, SSD 512GB, RTX 3060",
+        harga: 15000000,
+        stok: 5,
+        kondisi: "baru",
+        idSeller: sellers[0].idUser,
+        idCategory: categories.find((c) => c.namaKategori === "Elektronik")
+          ?.idCategory,
+      },
+      images: ["rog1.jpg", "rog2.jpg"],
     },
     {
-      namaProduk: "iPhone 13 Pro",
-      deskripsi: "iPhone 13 Pro 256GB, kondisi mulus, fullset, garansi resmi",
-      harga: 12000000,
-      stok: 3,
-      kondisi: "bekas",
-      idSeller: sellers[0].idUser,
-      idCategory: categories.find((c) => c.namaKategori === "Elektronik")?.idCategory,
+      product: {
+        namaProduk: "iPhone 13 Pro",
+        deskripsi: "iPhone 13 Pro 256GB, kondisi mulus, fullset, garansi resmi",
+        harga: 12000000,
+        stok: 3,
+        kondisi: "bekas",
+        idSeller: sellers[0].idUser,
+        idCategory: categories.find((c) => c.namaKategori === "Elektronik")
+          ?.idCategory,
+      },
+      images: ["ip13.jpg"],
     },
     {
-      namaProduk: "Kemeja Batik Pria",
-      deskripsi: "Kemeja batik premium dengan motif modern, bahan katun halus",
-      harga: 250000,
-      stok: 20,
-      kondisi: "baru",
-      idSeller: sellers[1].idUser,
-      idCategory: categories.find((c) => c.namaKategori === "Fashion")?.idCategory,
+      product: {
+        namaProduk: "Kemeja Batik Pria",
+        deskripsi:
+          "Kemeja batik premium dengan motif modern, bahan katun halus",
+        harga: 250000,
+        stok: 20,
+        kondisi: "baru",
+        idSeller: sellers[1].idUser,
+        idCategory: categories.find((c) => c.namaKategori === "Fashion")
+          ?.idCategory,
+      },
+      images: ["batik.webp"],
     },
     {
-      namaProduk: "Dress Wanita Elegant",
-      deskripsi: "Dress wanita untuk acara formal, tersedia berbagai ukuran",
-      harga: 350000,
-      stok: 15,
-      kondisi: "baru",
-      idSeller: sellers[1].idUser,
-      idCategory: categories.find((c) => c.namaKategori === "Fashion")?.idCategory,
+      product: {
+        namaProduk: "Dress Wanita Elegant",
+        deskripsi: "Dress wanita untuk acara formal, tersedia berbagai ukuran",
+        harga: 350000,
+        stok: 15,
+        kondisi: "baru",
+        idSeller: sellers[1].idUser,
+        idCategory: categories.find((c) => c.namaKategori === "Fashion")
+          ?.idCategory,
+      },
+      images: ["dress.jfif"],
     },
     {
-      namaProduk: "Sepatu Nike Air Max",
-      deskripsi: "Sepatu olahraga original Nike Air Max, nyaman dipakai",
-      harga: 1200000,
-      stok: 10,
-      kondisi: "baru",
-      idSeller: sellers[1].idUser,
-      idCategory: categories.find((c) => c.namaKategori === "Olahraga")?.idCategory,
+      product: {
+        namaProduk: "Sepatu Nike Air Max",
+        deskripsi: "Sepatu olahraga original Nike Air Max, nyaman dipakai",
+        harga: 1200000,
+        stok: 10,
+        kondisi: "baru",
+        idSeller: sellers[1].idUser,
+        idCategory: categories.find((c) => c.namaKategori === "Olahraga")
+          ?.idCategory,
+      },
+      images: ["nike.webp"],
     },
   ];
 
-  for (const product of products) {
-    await prisma.product.create({
-      data: product,
+  // Create Laptop ASUS ROG
+  const laptopAsus = await prisma.product.upsert({
+    where: { idProduct: 1 },
+    update: {},
+    create: productsWithImages[0].product,
+  });
+  await prisma.productImage.deleteMany({
+    where: { idProduct: laptopAsus.idProduct },
+  });
+  for (let i = 0; i < productsWithImages[0].images.length; i++) {
+    await prisma.productImage.create({
+      data: {
+        idProduct: laptopAsus.idProduct,
+        namaGambar: productsWithImages[0].images[i],
+        urutan: i + 1,
+      },
     });
   }
 
-  console.log(`Created ${products.length} products`);
+  // Create iPhone 13 Pro
+  const iphone = await prisma.product.upsert({
+    where: { idProduct: 2 },
+    update: {},
+    create: productsWithImages[1].product,
+  });
+  await prisma.productImage.deleteMany({
+    where: { idProduct: iphone.idProduct },
+  });
+  for (let i = 0; i < productsWithImages[1].images.length; i++) {
+    await prisma.productImage.create({
+      data: {
+        idProduct: iphone.idProduct,
+        namaGambar: productsWithImages[1].images[i],
+        urutan: i + 1,
+      },
+    });
+  }
+
+  // Create Kemeja Batik
+  const batik = await prisma.product.upsert({
+    where: { idProduct: 3 },
+    update: {},
+    create: productsWithImages[2].product,
+  });
+  await prisma.productImage.deleteMany({
+    where: { idProduct: batik.idProduct },
+  });
+  for (let i = 0; i < productsWithImages[2].images.length; i++) {
+    await prisma.productImage.create({
+      data: {
+        idProduct: batik.idProduct,
+        namaGambar: productsWithImages[2].images[i],
+        urutan: i + 1,
+      },
+    });
+  }
+
+  // Create Dress Wanita
+  const dress = await prisma.product.upsert({
+    where: { idProduct: 4 },
+    update: {},
+    create: productsWithImages[3].product,
+  });
+  await prisma.productImage.deleteMany({
+    where: { idProduct: dress.idProduct },
+  });
+  for (let i = 0; i < productsWithImages[3].images.length; i++) {
+    await prisma.productImage.create({
+      data: {
+        idProduct: dress.idProduct,
+        namaGambar: productsWithImages[3].images[i],
+        urutan: i + 1,
+      },
+    });
+  }
+
+  // Create Sepatu Nike
+  const nike = await prisma.product.upsert({
+    where: { idProduct: 5 },
+    update: {},
+    create: productsWithImages[4].product,
+  });
+  await prisma.productImage.deleteMany({
+    where: { idProduct: nike.idProduct },
+  });
+  for (let i = 0; i < productsWithImages[4].images.length; i++) {
+    await prisma.productImage.create({
+      data: {
+        idProduct: nike.idProduct,
+        namaGambar: productsWithImages[4].images[i],
+        urutan: i + 1,
+      },
+    });
+  }
+
+  console.log(`Created ${productsWithImages.length} products with images`);
 }
 
 async function seedRatings() {
