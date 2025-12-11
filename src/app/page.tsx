@@ -6,7 +6,13 @@ import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { CategoryBrowse } from "@/components/catalog/category-browse";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
 import { Product } from "@/types/product";
@@ -67,7 +73,12 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CatalogHeader userName={user?.nama} userRole={user?.role} onLogout={handleLogout} isLoggedIn={!!user} />
+      <CatalogHeader
+        userName={user?.nama}
+        userRole={user?.role}
+        onLogout={handleLogout}
+        isLoggedIn={!!user}
+      />
 
       <main className="container mx-auto px-4 lg:px-8 py-8">
         {/* Hero Section */}
@@ -79,7 +90,9 @@ export default function CatalogPage() {
               </div>
               <div>
                 <CardTitle className="text-3xl">Katalog Produk</CardTitle>
-                <CardDescription className="text-base mt-1">Jelajahi semua produk yang tersedia di Campus Market</CardDescription>
+                <CardDescription className="text-base mt-1">
+                  Jelajahi semua produk yang tersedia di Campus Market
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -109,8 +122,15 @@ export default function CatalogPage() {
                 <IconSearch className="h-12 w-12 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Belum Ada Produk</h3>
-              <p className="text-muted-foreground text-center max-w-md mb-6">Saat ini belum ada produk yang tersedia. Silakan cek kembali nanti.</p>
-              {user?.role === "penjual" && <Button onClick={() => router.push("/dashboard")}>Mulai Jual Produk</Button>}
+              <p className="text-muted-foreground text-center max-w-md mb-6">
+                Saat ini belum ada produk yang tersedia. Silakan cek kembali
+                nanti.
+              </p>
+              {user?.role === "penjual" && (
+                <Button onClick={() => router.push("/dashboard")}>
+                  Mulai Jual Produk
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (

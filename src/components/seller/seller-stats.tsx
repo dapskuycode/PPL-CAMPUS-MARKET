@@ -2,33 +2,45 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IconShoppingBag, IconCurrencyDollar, IconEye, IconPackage } from "@tabler/icons-react";
+import { IconShoppingBag, IconCurrencyDollar, IconShoppingCart, IconPackage } from "@tabler/icons-react";
 
-export function SellerStats() {
+interface SellerStatsProps {
+  sellerId?: number;
+}
+
+export function SellerStats({ sellerId }: SellerStatsProps) {
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalRevenue: 0,
-    totalViews: 0,
+    totalOrders: 0,
     activeProducts: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch seller stats from API
-    fetchStats();
-  }, []);
+    if (sellerId) {
+      fetchStats();
+    }
+  }, [sellerId]);
 
   const fetchStats = async () => {
     try {
-      // TODO: Replace with actual API call
-      // For now, using mock data
-      setStats({
-        totalProducts: 24,
-        totalRevenue: 15750000,
-        totalViews: 1250,
-        activeProducts: 18,
-      });
+      setLoading(true);
+      const response = await fetch(`/api/seller/stats?sellerId=${sellerId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setStats({
+          totalProducts: data.totalProducts || 0,
+          totalRevenue: data.totalRevenue || 0,
+          totalOrders: data.totalOrders || 0,
+          activeProducts: data.activeProducts || 0,
+        });
+      }
     } catch (error) {
       console.error("Error fetching stats:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,15 +52,15 @@ export function SellerStats() {
       color: "text-blue-600",
     },
     {
-      title: "Pendapatan",
+      title: "Total Pendapatan",
       value: `Rp ${stats.totalRevenue.toLocaleString("id-ID")}`,
       icon: IconCurrencyDollar,
       color: "text-green-600",
     },
     {
-      title: "Total Views",
-      value: stats.totalViews.toLocaleString("id-ID"),
-      icon: IconEye,
+      title: "Total Pesanan",
+      value: stats.totalOrders,
+      icon: IconShoppingCart,
       color: "text-purple-600",
     },
     {
@@ -58,6 +70,23 @@ export function SellerStats() {
       color: "text-orange-600",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Loading...</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">-</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
