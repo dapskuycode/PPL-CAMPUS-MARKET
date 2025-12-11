@@ -37,6 +37,24 @@ export function RatingFormModal({
   const [komentar, setKomentar] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Get user data from localStorage when modal opens
+  useState(() => {
+    if (isOpen) {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          setNama(user.nama || "");
+          setNoHp(user.noHP || "");
+          setEmail(user.email || "");
+          setProvinsi(user.provinsi || "");
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+        }
+      }
+    }
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -133,6 +151,8 @@ export function RatingFormModal({
               value={nama}
               onChange={(e) => setNama(e.target.value)}
               required
+              readOnly
+              className="bg-muted"
             />
           </div>
 
@@ -145,6 +165,8 @@ export function RatingFormModal({
               value={noHp}
               onChange={(e) => setNoHp(e.target.value)}
               required
+              readOnly
+              className="bg-muted"
             />
           </div>
 
@@ -158,6 +180,8 @@ export function RatingFormModal({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              readOnly
+              className="bg-muted"
             />
           </div>
 
@@ -170,6 +194,8 @@ export function RatingFormModal({
               value={provinsi}
               onChange={(e) => setProvinsi(e.target.value)}
               required
+              readOnly
+              className="bg-muted"
             />
           </div>
 

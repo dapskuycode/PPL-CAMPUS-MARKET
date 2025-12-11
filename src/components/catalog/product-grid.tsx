@@ -36,6 +36,20 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
       return;
     }
 
+    // Check if user has already rated this product
+    const user = JSON.parse(userData);
+    const product = products.find((p) => p.idProduct === productId);
+    
+    if (product && product.rating && product.rating.length > 0) {
+      const hasRated = product.rating.some((rating) => rating.email === user.email);
+      if (hasRated) {
+        alert(
+          "Anda sudah memberikan rating dan ulasan untuk produk ini sebelumnya. Setiap pengguna hanya dapat memberikan satu rating per produk."
+        );
+        return;
+      }
+    }
+
     setSelectedProductId(productId);
     setRatingModalOpen(true);
   };

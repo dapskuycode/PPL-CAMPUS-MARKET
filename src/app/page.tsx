@@ -4,16 +4,23 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { ProductGrid } from "@/components/catalog/product-grid";
+import { CategoryBrowse } from "@/components/catalog/category-browse";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconShoppingCart, IconSearch } from "@tabler/icons-react";
 import { Product } from "@/types/product";
 
+interface Category {
+  idCategory: number;
+  namaKategori: string;
+}
+
 export default function CatalogPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +29,20 @@ export default function CatalogPage() {
       setUser(JSON.parse(userData));
     }
     fetchProducts();
+    fetchCategories();
   }, [router]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories");
+      const data = await response.json();
+      if (response.ok) {
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -64,6 +84,9 @@ export default function CatalogPage() {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Category Browse Section */}
+        <CategoryBrowse categories={categories} />
 
         {/* Products Grid */}
         {loading ? (

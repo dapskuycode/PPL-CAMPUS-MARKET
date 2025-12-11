@@ -145,7 +145,20 @@ export default function ProductDetailPage() {
       return;
     }
 
-    // Jika sudah login, buka modal rating
+    // Cek apakah user sudah pernah memberikan rating untuk produk ini
+    const userEmail = user.email;
+    const hasRated = product?.rating?.some(
+      (rating) => rating.email === userEmail
+    );
+
+    if (hasRated) {
+      alert(
+        "Anda sudah memberikan rating dan ulasan untuk produk ini sebelumnya. Setiap pengguna hanya dapat memberikan satu rating per produk."
+      );
+      return;
+    }
+
+    // Jika belum pernah rating, buka modal rating
     setRatingModalOpen(true);
   };
 
