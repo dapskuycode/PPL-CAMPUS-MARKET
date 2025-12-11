@@ -1,9 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 const chartConfig = {
   penjualan: {
@@ -33,9 +46,11 @@ export function SellerChart({ sellerId }: SellerChartProps) {
   const fetchSalesData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/seller/sales-chart?sellerId=${sellerId}`);
+      const response = await fetch(
+        `/api/seller/sales-chart?sellerId=${sellerId}`
+      );
       const data = await response.json();
-      
+
       if (response.ok) {
         setChartData(data.chartData || []);
       }
@@ -50,7 +65,9 @@ export function SellerChart({ sellerId }: SellerChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>Statistik Penjualan</CardTitle>
-        <CardDescription>Distribusi penjualan produk per bulan dalam 12 bulan terakhir</CardDescription>
+        <CardDescription>
+          Distribusi penjualan produk per bulan dalam 12 bulan terakhir
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -72,11 +89,34 @@ export function SellerChart({ sellerId }: SellerChartProps) {
               }}
             >
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.slice(0, 3)} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-              <Area dataKey="penjualan" type="natural" fill="var(--color-penjualan)" fillOpacity={0.4} stroke="var(--color-penjualan)" stackId="a" />
-              <Area dataKey="quantity" type="natural" fill="var(--color-quantity)" fillOpacity={0.4} stroke="var(--color-quantity)" stackId="b" />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <Area
+                dataKey="penjualan"
+                type="natural"
+                fill="var(--color-penjualan)"
+                fillOpacity={0.4}
+                stroke="var(--color-penjualan)"
+                stackId="a"
+              />
+              <Area
+                dataKey="quantity"
+                type="natural"
+                fill="var(--color-quantity)"
+                fillOpacity={0.4}
+                stroke="var(--color-quantity)"
+                stackId="b"
+              />
               <ChartLegend content={<ChartLegendContent />} />
             </AreaChart>
           </ChartContainer>

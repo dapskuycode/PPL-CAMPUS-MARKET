@@ -32,21 +32,23 @@ export default function DashboardPage() {
 
     setUser(parsedUser);
     setLoading(false);
-    
+
     // Fetch dashboard data
     fetchDashboardData(parsedUser.idUser);
   }, [router]);
 
   const fetchDashboardData = async (sellerId: number) => {
     try {
-      const response = await fetch(`/api/seller/dashboard?sellerId=${sellerId}`);
+      const response = await fetch(
+        `/api/seller/dashboard?sellerId=${sellerId}`
+      );
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.error("Dashboard error:", data.error);
         return;
       }
-      
+
       setDashboardData(data);
     } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
@@ -74,7 +76,7 @@ export default function DashboardPage() {
               <div className="px-4 lg:px-6">
                 <SellerChart sellerId={user.idUser} />
               </div>
-              
+
               {dashboardData && (
                 <div className="px-4 lg:px-6">
                   <SellerDashboardCharts
@@ -84,11 +86,11 @@ export default function DashboardPage() {
                   />
                 </div>
               )}
-              
+
               <div className="px-4 lg:px-6">
                 <SellerReports sellerId={user.idUser} />
               </div>
-              
+
               <SellerProductTable />
             </div>
           </div>

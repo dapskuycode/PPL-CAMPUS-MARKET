@@ -1,12 +1,25 @@
 "use client";
 
 import * as React from "react";
-import { IconDashboard, IconUsers, IconShoppingBag, IconSettings } from "@tabler/icons-react";
+import {
+  IconDashboard,
+  IconUsers,
+  IconShoppingBag,
+  IconSettings,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: {
@@ -27,7 +40,7 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
     },
     {
       title: "Verifikasi Penjual",
-      url: "/admin",
+      url: "/admin/sellers",
       icon: IconUsers,
     },
     {
@@ -50,7 +63,10 @@ export function AdminSidebar({ user, ...props }: AdminSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="/admin">
                 <IconShoppingBag className="!size-5" />
                 <span className="text-base font-semibold">Campus Market</span>

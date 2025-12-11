@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IconShoppingBag, IconCurrencyDollar, IconShoppingCart, IconPackage } from "@tabler/icons-react";
+import {
+  IconShoppingBag,
+  IconCurrencyDollar,
+  IconShoppingCart,
+  IconPackage,
+} from "@tabler/icons-react";
 
 interface SellerStatsProps {
   sellerId?: number;
@@ -28,7 +33,7 @@ export function SellerStats({ sellerId }: SellerStatsProps) {
       setLoading(true);
       const response = await fetch(`/api/seller/stats?sellerId=${sellerId}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setStats({
           totalProducts: data.totalProducts || 0,
@@ -95,7 +100,9 @@ export function SellerStats({ sellerId }: SellerStatsProps) {
         return (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
               <Icon className={`h-4 w-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
