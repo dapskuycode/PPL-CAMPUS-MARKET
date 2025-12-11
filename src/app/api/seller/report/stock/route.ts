@@ -7,7 +7,10 @@ export async function GET(request: NextRequest) {
     const sellerId = request.nextUrl.searchParams.get("sellerId");
 
     if (!sellerId) {
-      return NextResponse.json({ error: "Seller ID required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Seller ID required" },
+        { status: 400 }
+      );
     }
 
     const id = parseInt(sellerId);
@@ -33,63 +36,80 @@ export async function GET(request: NextRequest) {
 
     const totalStock = products.reduce((sum, p) => sum + (p.stok || 0), 0);
 
+    // Calculate average ratings
+    const productsWithRating = products.map((product) => {
+      const ratings = product.rating || [];
+      const avgRating =
+        ratings.length > 0
+          ? ratings.reduce((sum, r) => sum + (r.nilai || 0), 0) / ratings.length
+          : 0;
+      return {
+        ...product,
+        avgRating: parseFloat(avgRating.toFixed(2)),
+      };
+    });
+
     // Generate HTML
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="UTF-8">
-          <title>Laporan Daftar Stok Produk</title>
+          <title>Laporan Daftar Produk Berdasarkan Stok</title>
           <style>
             * { margin: 0; padding: 0; }
             body { font-family: Arial, sans-serif; padding: 20px; font-size: 12px; }
-            h1 { text-align: center; margin-bottom: 10px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .summary { margin-bottom: 20px; }
+            h1 { text-align: center; margin-bottom: 5px; font-size: 16px; }
+            .meta { text-align: center; margin-bottom: 20px; font-size: 11px; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th, td { border: 1px solid #999; padding: 6px; text-align: left; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 11px; }
             th { background-color: #f0f0f0; font-weight: bold; }
-            @media print { body { padding: 0; font-size: 11px; } }
+            .note { margin-top: 10px; font-size: 10px; font-style: italic; }
+            @media print { body { padding: 10px; } }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>Laporan Daftar Stok Produk</h1>
-            <p>Penjual: ${seller.nama}</p>
-            <p>Tanggal: ${new Date().toLocaleDateString("id-ID")}</p>
-          </div>
+          <h1>Laporan Daftar Produk Berdasarkan Stok</h1>
+          <div class="meta">Tanggal dibuat: ${new Date().toLocaleDateString(
+            "id-ID"
+          )} oleh ${seller.nama}</div>
           
-          <div class="summary">
-            <h3>Ringkasan</h3>
-            <p>Total Produk: ${products.length}</p>
-            <p>Total Stok: ${totalStock}</p>
-          </div>
-          
-          <h3>Detail Produk (Diurutkan Berdasarkan Stok)</h3>
           <table>
             <thead>
               <tr>
-                <th style="width: 4%;">No</th>
-                <th style="width: 8%;">Stok</th>
-                <th style="width: 35%;">Produk</th>
-                <th style="width: 15%;">Rating</th>
-                <th style="width: 38%;">Harga</th>
+                <th style="width: 5%;">No</th>
+                <th style="width: 30%;">Produk</th>
+                <th style="width: 20%;">Kategori</th>
+                <th style="width: 20%;">Harga</th>
+                <th style="width: 12%;">Rating</th>
+                <th style="width: 13%;">Stok</th>
               </tr>
             </thead>
             <tbody>
-              ${products.map((product, index) => {
-                const ratings = product.rating || [];
-                const avgRating = ratings.length > 0 ? (ratings.reduce((sum, r) => sum + (r.nilai || 0), 0) / ratings.length).toFixed(2) : "-";
-                return `
+              ${productsWithRating
+                .map((product, index) => {
+                  const ratings = product.rating || [];
+                  const avgRating =
+                    ratings.length > 0
+                      ? (
+                          ratings.reduce((sum, r) => sum + (r.nilai || 0), 0) /
+                          ratings.length
+                        ).toFixed(2)
+                      : "-";
+                  return `
                   <tr>
                     <td>${index + 1}</td>
-                    <td>${product.stok || 0}</td>
                     <td>${product.namaProduk || ""}</td>
+                    <td>${product.category?.namaKategori || ""}</td>
+                    <td>Rp ${new Intl.NumberFormat("id-ID").format(
+                      Number(product.harga)
+                    )}</td>
                     <td>${avgRating}⭐</td>
-                    <td>Rp ${new Intl.NumberFormat("id-ID").format(Number(product.harga))}</td>
+                    <td>${product.stok || 0}</td>
                   </tr>
                 `;
-              }).join("")}
+                })
+                .join("")}
             </tbody>
           </table>
           
