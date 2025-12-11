@@ -1,13 +1,29 @@
 "use client";
 
 import * as React from "react";
-import { IconDashboard, IconShoppingBag, IconPlus, IconSettings, IconHelp, IconLogout, IconShoppingCart } from "@tabler/icons-react";
+import {
+  IconDashboard,
+  IconShoppingBag,
+  IconPlus,
+  IconSettings,
+  IconHelp,
+  IconLogout,
+  IconShoppingCart,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 interface SellerSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: any;
@@ -29,7 +45,7 @@ export function SellerSidebar({ user, ...props }: SellerSidebarProps) {
     },
     {
       title: "Produk Saya",
-      url: "/dashboard",
+      url: "/dashboard/products",
       icon: IconShoppingBag,
     },
     {
@@ -68,10 +84,15 @@ export function SellerSidebar({ user, ...props }: SellerSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="/catalog">
                 <IconShoppingBag className="!size-5" />
-                <span className="text-base font-semibold">{user?.toko?.namaToko || "Campus Market"}</span>
+                <span className="text-base font-semibold">
+                  {user?.toko?.namaToko || "Campus Market"}
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

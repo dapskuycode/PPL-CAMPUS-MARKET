@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, LogOut, LogIn, Search, ShoppingCart, Package } from "lucide-react";
+import {
+  ShoppingBag,
+  LogOut,
+  LogIn,
+  Search,
+  ShoppingCart,
+  Package,
+  LayoutDashboard,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface CatalogHeaderProps {
@@ -66,6 +74,17 @@ export function CatalogHeader({
           <div className="flex items-center gap-4">
             {isLoggedIn ? (
               <>
+                {userRole === "penjual" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push("/dashboard")}
+                    className="gap-2"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span className="hidden md:inline">Dashboard</span>
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"

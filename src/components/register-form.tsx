@@ -1,11 +1,19 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 interface RegisterFormProps {
   role: string;
@@ -94,6 +102,9 @@ export function RegisterForm({
   onSubmit,
   onRoleChange,
 }: RegisterFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <Card className="w-full max-w-4xl">
       <CardHeader>
@@ -101,14 +112,22 @@ export function RegisterForm({
         <CardDescription>Buat akun baru di Campus Market</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs value={role || "pembeli"} onValueChange={onRoleChange} className="mb-6">
+        <Tabs
+          value={role || "pembeli"}
+          onValueChange={onRoleChange}
+          className="mb-6"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="pembeli">Pembeli</TabsTrigger>
             <TabsTrigger value="penjual">Penjual</TabsTrigger>
           </TabsList>
         </Tabs>
 
-        {error && <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded-md">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded-md">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={onSubmit}>
           <FieldGroup>
@@ -119,30 +138,95 @@ export function RegisterForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field>
                   <FieldLabel htmlFor="nama">Nama Lengkap</FieldLabel>
-                  <Input id="nama" value={nama} onChange={(e) => onNamaChange(e.target.value)} required />
+                  <Input
+                    id="nama"
+                    value={nama}
+                    onChange={(e) => onNamaChange(e.target.value)}
+                    required
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="noHP">No HP</FieldLabel>
-                  <Input id="noHP" value={noHP} onChange={(e) => onNoHPChange(e.target.value)} required />
+                  <Input
+                    id="noHP"
+                    value={noHP}
+                    onChange={(e) => onNoHPChange(e.target.value)}
+                    required
+                  />
                 </Field>
               </div>
 
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" value={email} onChange={(e) => onEmailChange(e.target.value)} required />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => onEmailChange(e.target.value)}
+                  required
+                />
               </Field>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field>
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input id="password" type="password" value={password} onChange={(e) => onPasswordChange(e.target.value)} required minLength={8} />
-                  <p className="text-xs text-gray-500 mt-1">Min 8 karakter, harus ada huruf besar, angka, dan karakter khusus</p>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => onPasswordChange(e.target.value)}
+                      required
+                      minLength={8}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Min 8 karakter, harus ada huruf besar, angka, dan karakter
+                    khusus
+                  </p>
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="confirmPassword">Konfirmasi Password</FieldLabel>
-                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => onConfirmPasswordChange(e.target.value)} required minLength={8} />
+                  <FieldLabel htmlFor="confirmPassword">
+                    Konfirmasi Password
+                  </FieldLabel>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => onConfirmPasswordChange(e.target.value)}
+                      required
+                      minLength={8}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </Field>
               </div>
             </div>
@@ -154,40 +238,69 @@ export function RegisterForm({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Field>
                   <FieldLabel htmlFor="provinsi">Provinsi</FieldLabel>
-                  <Input id="provinsi" value={provinsi} onChange={(e) => onProvinsiChange(e.target.value)} />
+                  <Input
+                    id="provinsi"
+                    value={provinsi}
+                    onChange={(e) => onProvinsiChange(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="kabupaten">Kabupaten/Kota</FieldLabel>
-                  <Input id="kabupaten" value={kabupatenKota} onChange={(e) => onKabupatenKotaChange(e.target.value)} />
+                  <Input
+                    id="kabupaten"
+                    value={kabupatenKota}
+                    onChange={(e) => onKabupatenKotaChange(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="kecamatan">Kecamatan</FieldLabel>
-                  <Input id="kecamatan" value={kecamatan} onChange={(e) => onKecamatanChange(e.target.value)} />
+                  <Input
+                    id="kecamatan"
+                    value={kecamatan}
+                    onChange={(e) => onKecamatanChange(e.target.value)}
+                  />
                 </Field>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Field className="col-span-2">
                   <FieldLabel htmlFor="kelurahan">Kelurahan</FieldLabel>
-                  <Input id="kelurahan" value={namaKelurahan} onChange={(e) => onNamaKelurahanChange(e.target.value)} />
+                  <Input
+                    id="kelurahan"
+                    value={namaKelurahan}
+                    onChange={(e) => onNamaKelurahanChange(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="rt">RT</FieldLabel>
-                  <Input id="rt" value={rt} onChange={(e) => onRtChange(e.target.value)} />
+                  <Input
+                    id="rt"
+                    value={rt}
+                    onChange={(e) => onRtChange(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="rw">RW</FieldLabel>
-                  <Input id="rw" value={rw} onChange={(e) => onRwChange(e.target.value)} />
+                  <Input
+                    id="rw"
+                    value={rw}
+                    onChange={(e) => onRwChange(e.target.value)}
+                  />
                 </Field>
               </div>
 
               <Field>
                 <FieldLabel htmlFor="alamatJalan">Alamat Jalan</FieldLabel>
-                <Input id="alamatJalan" value={alamatJalan} onChange={(e) => onAlamatJalanChange(e.target.value)} required />
+                <Input
+                  id="alamatJalan"
+                  value={alamatJalan}
+                  onChange={(e) => onAlamatJalanChange(e.target.value)}
+                  required
+                />
               </Field>
             </div>
 
@@ -198,11 +311,19 @@ export function RegisterForm({
 
                 <Field>
                   <FieldLabel htmlFor="namaToko">Nama Toko</FieldLabel>
-                  <Input id="namaToko" value={namaToko} onChange={(e) => onNamaTokoChange(e.target.value)} placeholder="Contoh: Toko Kampus Jaya" required />
+                  <Input
+                    id="namaToko"
+                    value={namaToko}
+                    onChange={(e) => onNamaTokoChange(e.target.value)}
+                    placeholder="Contoh: Toko Kampus Jaya"
+                    required
+                  />
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="deskripsiToko">Deskripsi Toko</FieldLabel>
+                  <FieldLabel htmlFor="deskripsiToko">
+                    Deskripsi Toko
+                  </FieldLabel>
                   <textarea
                     id="deskripsiToko"
                     value={deskripsiToko}
@@ -214,19 +335,47 @@ export function RegisterForm({
 
                 <Field>
                   <FieldLabel htmlFor="noKtp">No KTP</FieldLabel>
-                  <Input id="noKtp" value={noKtp} onChange={(e) => onNoKtpChange(e.target.value)} />
+                  <Input
+                    id="noKtp"
+                    value={noKtp}
+                    onChange={(e) => onNoKtpChange(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="fotoKtp">Foto KTP</FieldLabel>
-                  <Input id="fotoKtp" type="file" accept="image/*" onChange={(e) => onFotoKtpChange(e.target.files?.[0] || null)} />
-                  {fotoKtpFile && <p className="text-xs text-muted-foreground mt-1">File: {fotoKtpFile.name}</p>}
+                  <Input
+                    id="fotoKtp"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      onFotoKtpChange(e.target.files?.[0] || null)
+                    }
+                  />
+                  {fotoKtpFile && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      File: {fotoKtpFile.name}
+                    </p>
+                  )}
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="fileUploadKtp">File Upload PIC</FieldLabel>
-                  <Input id="fileUploadKtp" type="file" accept="image/*,.pdf" onChange={(e) => onFileUploadKtpChange(e.target.files?.[0] || null)} />
-                  {fileUploadKtp && <p className="text-xs text-muted-foreground mt-1">File: {fileUploadKtp.name}</p>}
+                  <FieldLabel htmlFor="fileUploadKtp">
+                    File Upload PIC
+                  </FieldLabel>
+                  <Input
+                    id="fileUploadKtp"
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) =>
+                      onFileUploadKtpChange(e.target.files?.[0] || null)
+                    }
+                  />
+                  {fileUploadKtp && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      File: {fileUploadKtp.name}
+                    </p>
+                  )}
                 </Field>
               </div>
             )}
