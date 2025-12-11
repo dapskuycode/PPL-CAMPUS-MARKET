@@ -39,14 +39,43 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in (optional for viewing)
     const userData = localStorage.getItem("user");
+    console.log("=== DEBUG LOGIN STATE ===");
+    console.log("localStorage user:", userData);
+
     if (userData) {
-      setUser(JSON.parse(userData));
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log("Parsed user:", parsedUser);
+        console.log("Has idUser?", parsedUser?.idUser);
+
+        if (parsedUser && parsedUser.idUser) {
+          setUser(parsedUser);
+          setIsLoggedIn(true);
+          console.log("✅ User is logged in");
+        } else {
+          setUser(null);
+          setIsLoggedIn(false);
+          console.log("❌ User data invalid, not logged in");
+        }
+      } catch (e) {
+        console.log("❌ Error parsing user data:", e);
+        setUser(null);
+        setIsLoggedIn(false);
+      }
+    } else {
+      setUser(null);
+      setIsLoggedIn(false);
+      console.log("❌ No user data in localStorage");
     }
+
+    console.log("isLoggedIn state:", isLoggedIn);
+    console.log("========================");
 
     // Fetch product detail
     fetchProductDetail();
@@ -88,6 +117,8 @@ export default function ProductDetailPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    setUser(null);
+    setIsLoggedIn(false);
     router.push("/");
   };
 
@@ -143,10 +174,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Produk tidak ditemukan</p>
-          <Link
-            href="/"
-            className="text-blue-600 hover:underline"
-          >
+          <Link href="/" className="text-blue-600 hover:underline">
             Kembali ke Katalog
           </Link>
         </div>
@@ -159,14 +187,17 @@ export default function ProductDetailPage() {
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-gray-800 hover:text-blue-600">
+          <Link
+            href="/"
+            className="text-2xl font-bold text-gray-800 hover:text-blue-600"
+          >
             Campus Market
           </Link>
           <div className="flex items-center gap-4">
-            {user ? (
+            {isLoggedIn ? (
               <>
                 <span className="text-sm text-zinc-600">
-                  <strong>{user.nama}</strong>
+                  <strong>{user?.nama || "User"}</strong>
                 </span>
                 <button
                   onClick={handleLogout}
@@ -181,7 +212,7 @@ export default function ProductDetailPage() {
                   href="/register"
                   className="rounded-md bg-green-600 px-4 py-2 text-white text-sm hover:bg-green-700"
                 >
-                  Register
+                  Daftar
                 </Link>
                 <Link
                   href="/login"
@@ -308,12 +339,16 @@ export default function ProductDetailPage() {
               <div>
                 <p className="text-sm text-gray-600">Stok</p>
                 <p className="font-semibold">
-                  {product.stok !== null ? `${product.stok} unit` : "Tidak tersedia"}
+                  {product.stok !== null
+                    ? `${product.stok} unit`
+                    : "Tidak tersedia"}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>
-                <p className="font-semibold capitalize">{product.statusProduk || "-"}</p>
+                <p className="font-semibold capitalize">
+                  {product.statusProduk || "-"}
+                </p>
               </div>
             </div>
 
@@ -333,10 +368,11 @@ export default function ProductDetailPage() {
 
             {product.tanggalUpload && (
               <p className="text-sm text-gray-500">
-                Diupload pada {new Date(product.tanggalUpload).toLocaleDateString("id-ID", {
+                Diupload pada{" "}
+                {new Date(product.tanggalUpload).toLocaleDateString("id-ID", {
                   year: "numeric",
                   month: "long",
-                  day: "numeric"
+                  day: "numeric",
                 })}
               </p>
             )}
@@ -345,7 +381,12 @@ export default function ProductDetailPage() {
             <div className="border-t border-gray-200 pt-6">
               <Button
                 onClick={handleAddToCart}
-                disabled={addingToCart || !product.stok || product.stok < 1 || product.statusProduk !== "aktif"}
+                disabled={
+                  addingToCart ||
+                  !product.stok ||
+                  product.stok < 1 ||
+                  product.statusProduk !== "aktif"
+                }
                 size="lg"
                 className="w-full"
               >

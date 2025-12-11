@@ -22,6 +22,20 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
   const handleRatingClick = (e: React.MouseEvent, productId: number) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Check if user is logged in
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      if (
+        confirm(
+          "Anda harus login terlebih dahulu untuk memberikan rating. Login sekarang?"
+        )
+      ) {
+        window.location.href = "/login";
+      }
+      return;
+    }
+
     setSelectedProductId(productId);
     setRatingModalOpen(true);
   };

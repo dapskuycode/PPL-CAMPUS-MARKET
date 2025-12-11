@@ -55,9 +55,12 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [user, setUser] = useState<{ nama?: string; role?: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<{
+    nama?: string;
+    role?: string;
+    idUser?: number;
+  } | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
 
@@ -65,7 +68,22 @@ export default function ProductDetailPage() {
     // Check if user is logged in (optional for viewing)
     const userData = localStorage.getItem("user");
     if (userData) {
-      setUser(JSON.parse(userData));
+      try {
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser && parsedUser.idUser) {
+          setUser(parsedUser);
+          setIsLoggedIn(true);
+        } else {
+          setUser(null);
+          setIsLoggedIn(false);
+        }
+      } catch (e) {
+        setUser(null);
+        setIsLoggedIn(false);
+      }
+    } else {
+      setUser(null);
+      setIsLoggedIn(false);
     }
 
     // Fetch product detail
@@ -109,13 +127,36 @@ export default function ProductDetailPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    router.push("/login");
+    setUser(null);
+    setIsLoggedIn(false);
+    router.push("/catalog");
+  };
+
+  const handleWriteReview = () => {
+    // Cek apakah user sudah login
+    if (!user) {
+      if (
+        confirm(
+          "Anda harus login terlebih dahulu untuk menulis ulasan. Login sekarang?"
+        )
+      ) {
+        router.push("/login");
+      }
+      return;
+    }
+
+    // Jika sudah login, buka modal rating
+    setRatingModalOpen(true);
   };
 
   const handleAddToCart = async () => {
     // Cek apakah user sudah login
     if (!user) {
-      if (confirm("Anda harus login terlebih dahulu untuk berbelanja. Login sekarang?")) {
+      if (
+        confirm(
+          "Anda harus login terlebih dahulu untuk berbelanja. Login sekarang?"
+        )
+      ) {
         router.push("/login");
       }
       return;
@@ -154,7 +195,7 @@ export default function ProductDetailPage() {
       }
 
       alert("Produk berhasil ditambahkan ke keranjang!");
-      
+
       // Redirect ke halaman cart setelah berhasil
       if (confirm("Lihat keranjang sekarang?")) {
         router.push("/cart");
@@ -200,15 +241,29 @@ export default function ProductDetailPage() {
             Campus Market
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              <strong>{user?.nama}</strong>
-            </span>
-            <button
-              onClick={handleLogout}
-              className="rounded-md bg-destructive px-4 py-2 text-destructive-foreground text-sm hover:bg-destructive/90"
-            >
-              Logout
-            </button>
+            {isLoggedIn ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  <strong>{user?.nama || "User"}</strong>
+                </span>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push("/register")}
+                >
+                  Daftar
+                </Button>
+                <Button size="sm" onClick={() => router.push("/login")}>
+                  Login
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -427,9 +482,7 @@ export default function ProductDetailPage() {
                     {product.rating.length} ulasan
                   </p>
                 </div>
-                <Button onClick={() => setRatingModalOpen(true)}>
-                  Tulis Ulasan
-                </Button>
+                <Button onClick={handleWriteReview}>Tulis Ulasan</Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
