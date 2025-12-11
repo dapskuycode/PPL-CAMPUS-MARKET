@@ -36,7 +36,9 @@ export default function AdminCategoriesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [categoryName, setCategoryName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -319,8 +321,8 @@ export default function AdminCategoriesPage() {
               {selectedCategory?.namaKategori}&quot;?
               {selectedCategory && selectedCategory._count.product > 0 && (
                 <span className="block mt-2 text-destructive">
-                  Kategori ini memiliki {selectedCategory._count.product}{" "}
-                  produk dan tidak dapat dihapus.
+                  Kategori ini memiliki {selectedCategory._count.product} produk
+                  dan tidak dapat dihapus.
                 </span>
               )}
             </DialogDescription>
