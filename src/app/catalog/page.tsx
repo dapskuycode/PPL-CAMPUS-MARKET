@@ -91,22 +91,29 @@ function CatalogContent() {
       );
 
       // Build URL dengan parameter
+      // Jika ada search query, gunakan endpoint search yang sudah mendukung pencarian:
+      // - Nama produk
+      // - Kategori produk
+      // - Nama toko
+      // - Lokasi (kabupaten/kota dan provinsi)
       let url = "/api/catalog";
       const params = new URLSearchParams();
 
       if (query && query.trim() !== "") {
-        params.append("search", query);
-        console.log("[fetchProducts] Added search param:", query);
-      }
-
-      // Validate categoryId is a valid number before adding to params
-      if (
-        categoryId &&
-        categoryId.trim() !== "" &&
-        !isNaN(Number(categoryId))
-      ) {
-        params.append("categories", categoryId);
-        console.log("[fetchProducts] Added categories param:", categoryId);
+        // Gunakan endpoint search untuk pencarian multi-field
+        url = "/api/catalog/search";
+        params.append("q", query);
+        console.log("[fetchProducts] Using search endpoint with query:", query);
+      } else {
+        // Gunakan endpoint catalog biasa untuk filter kategori
+        if (
+          categoryId &&
+          categoryId.trim() !== "" &&
+          !isNaN(Number(categoryId))
+        ) {
+          params.append("categories", categoryId);
+          console.log("[fetchProducts] Added categories param:", categoryId);
+        }
       }
 
       if (params.toString()) {
