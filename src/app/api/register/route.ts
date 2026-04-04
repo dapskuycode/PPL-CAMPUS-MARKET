@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const role = formData.get("role") as string;
     const nama = formData.get("nama") as string;
     const noHP = formData.get("noHP") as string;
-    const email = formData.get("email") as string;
+    const email = (formData.get("email") as string)?.toLowerCase().trim();
     const password = formData.get("password") as string;
     const alamatJalan = formData.get("alamatJalan") as string;
     const rt = (formData.get("rt") as string) || "";
@@ -109,7 +109,10 @@ export async function POST(request: NextRequest) {
         fileUploadPIC: fileUploadPICPath,
         role: role,
         statusAkun: "aktif",
+        // Pembeli langsung verified, penjual pending
         statusVerifikasi: role === "penjual" ? "pending" : "verified",
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
       },
     });
 
@@ -124,16 +127,39 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Note: Email verification will be sent by admin after approving the registration
+    console.log(`✅ User registered with email: ${email}. Awaiting admin approval for verification email.`);
+
+    const message = role === "penjual" 
+      ? "Registrasi berhasil sebagai Penjual. Tunggu persetujuan admin sebelum dapat mulai berjualan."
+      : "Registrasi berhasil sebagai Pembeli. Silakan login untuk mulai berbelanja.";
+
     return NextResponse.json(
       {
         success: true,
-        message: "Registrasi berhasil",
+        message: message,
         userId: user.idUser,
       },
       { status: 201 }
     );
   } catch (error: any) {
     console.error("Registration error:", error);
-    return NextResponse.json({ error: "Terjadi kesalahan saat registrasi", details: error.message }, { status: 500 });
+    
+    // Provide specific error messages
+    if (error.code === 'P2002') {
+      // Unique constraint violation
+      const field = error.meta?.target?.[0] || 'field';
+      return NextResponse.json(
+        { error: `${field === 'email' ? 'Email' : field} sudah terdaftar` },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { 
+        error: error.message || "Terjadi kesalahan saat registrasi",
+      },
+      { status: 500 }
+    );
   }
 }

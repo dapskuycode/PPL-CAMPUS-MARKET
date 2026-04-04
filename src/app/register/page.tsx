@@ -56,7 +56,7 @@ function RegisterContent() {
     formData.append("role", role);
     formData.append("nama", nama);
     formData.append("noHP", noHP);
-    formData.append("email", email);
+    formData.append("email", email.toLowerCase().trim());
     formData.append("password", password);
     formData.append("alamatJalan", alamatJalan);
     formData.append("rt", rt);

@@ -367,3 +367,337 @@ Tim Campus Market
     // Don't throw error - email is nice to have but not critical
   }
 }
+
+/**
+ * Send registration confirmation email
+ * @param to - User email address
+ * @param userName - User name
+ * @param role - User role (pembeli or penjual)
+ */
+export async function sendRegistrationEmail(
+  to: string,
+  userName: string,
+  role: string
+): Promise<void> {
+  try {
+    // Skip email if SMTP not configured (development mode)
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+      console.log('⚠️  SMTP not configured. Email notification skipped.');
+      console.log(`📧 Would send registration email to ${to}`);
+      return;
+    }
+
+    const isPenjual = role === 'penjual';
+    const subject = isPenjual 
+      ? '🎉 Registrasi Berhasil - Menunggu Verifikasi Admin - Campus Market'
+      : '🎉 Selamat Datang di Campus Market!';
+    
+    const htmlContent = isPenjual ? `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .welcome-icon { font-size: 48px; margin-bottom: 10px; }
+            .info-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="welcome-icon">🎉</div>
+              <h1>Registrasi Berhasil!</h1>
+            </div>
+            <div class="content">
+              <h2>Selamat Datang, ${userName}!</h2>
+              <p>Halo <strong>${userName}</strong>,</p>
+              <p>Terima kasih telah mendaftar sebagai <strong>Penjual</strong> di <strong>Campus Market</strong>. Registrasi Anda telah berhasil dan saat ini sedang dalam proses verifikasi.</p>
+              
+              <div class="info-box">
+                <h3>⏳ Status Akun: Menunggu Verifikasi</h3>
+                <p>Tim admin kami akan segera meninjau dokumen dan informasi yang Anda berikan. Proses verifikasi biasanya memakan waktu 1-3 hari kerja.</p>
+              </div>
+              
+              <h3>Apa yang Terjadi Selanjutnya?</h3>
+              <ol>
+                <li>📋 Admin akan meninjau dokumen KTP dan informasi toko Anda</li>
+                <li>✅ Anda akan menerima email notifikasi hasil verifikasi</li>
+                <li>🏪 Setelah diverifikasi, Anda dapat mulai mengelola toko dan upload produk</li>
+              </ol>
+              
+              <p><strong>Informasi Akun:</strong></p>
+              <ul>
+                <li>Email: ${to}</li>
+                <li>Status: Menunggu Verifikasi</li>
+                <li>Tanggal Registrasi: ${new Date().toLocaleDateString('id-ID', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</li>
+              </ul>
+              
+              <p>Jika Anda memiliki pertanyaan, jangan ragu untuk menghubungi tim support kami.</p>
+              
+              <p>Terima kasih telah bergabung dengan Campus Market!</p>
+              
+              <p>Salam,<br><strong>Tim Campus Market</strong></p>
+            </div>
+            <div class="footer">
+              <p>Email ini dikirim secara otomatis. Mohon tidak membalas email ini.</p>
+              <p>&copy; ${new Date().getFullYear()} Campus Market. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    ` : `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .welcome-icon { font-size: 48px; margin-bottom: 10px; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="welcome-icon">🎉</div>
+              <h1>Selamat Datang!</h1>
+            </div>
+            <div class="content">
+              <h2>Halo, ${userName}!</h2>
+              <p>Terima kasih telah mendaftar sebagai <strong>Pembeli</strong> di <strong>Campus Market</strong>.</p>
+              <p>Akun Anda telah berhasil dibuat dan siap digunakan!</p>
+              
+              <h3>Apa yang Bisa Anda Lakukan?</h3>
+              <ul>
+                <li>🛍️ Jelajahi ribuan produk dari berbagai penjual terpercaya</li>
+                <li>🛒 Tambahkan produk favorit ke keranjang belanja</li>
+                <li>💳 Checkout dan lakukan pembayaran dengan mudah</li>
+                <li>⭐ Berikan rating dan review untuk produk yang dibeli</li>
+                <li>📦 Lacak status pesanan Anda secara real-time</li>
+              </ul>
+              
+              <p style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login" class="button">
+                  Login Sekarang
+                </a>
+              </p>
+              
+              <p><strong>Informasi Akun:</strong></p>
+              <ul>
+                <li>Email: ${to}</li>
+                <li>Status: Aktif ✓</li>
+                <li>Tanggal Registrasi: ${new Date().toLocaleDateString('id-ID', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</li>
+              </ul>
+              
+              <p>Selamat berbelanja di Campus Market!</p>
+              
+              <p>Salam,<br><strong>Tim Campus Market</strong></p>
+            </div>
+            <div class="footer">
+              <p>Email ini dikirim secara otomatis. Mohon tidak membalas email ini.</p>
+              <p>&copy; ${new Date().getFullYear()} Campus Market. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const textContent = isPenjual ? `
+Registrasi Berhasil - Menunggu Verifikasi Admin
+
+Selamat Datang, ${userName}!
+
+Halo ${userName},
+
+Terima kasih telah mendaftar sebagai Penjual di Campus Market. Registrasi Anda telah berhasil dan saat ini sedang dalam proses verifikasi.
+
+Status Akun: Menunggu Verifikasi
+Tim admin kami akan segera meninjau dokumen dan informasi yang Anda berikan. Proses verifikasi biasanya memakan waktu 1-3 hari kerja.
+
+Apa yang Terjadi Selanjutnya?
+1. Admin akan meninjau dokumen KTP dan informasi toko Anda
+2. Anda akan menerima email notifikasi hasil verifikasi
+3. Setelah diverifikasi, Anda dapat mulai mengelola toko dan upload produk
+
+Informasi Akun:
+- Email: ${to}
+- Status: Menunggu Verifikasi
+- Tanggal Registrasi: ${new Date().toLocaleDateString('id-ID')}
+
+Terima kasih telah bergabung dengan Campus Market!
+
+Salam,
+Tim Campus Market
+    ` : `
+Selamat Datang di Campus Market!
+
+Halo, ${userName}!
+
+Terima kasih telah mendaftar sebagai Pembeli di Campus Market.
+Akun Anda telah berhasil dibuat dan siap digunakan!
+
+Apa yang Bisa Anda Lakukan?
+- Jelajahi ribuan produk dari berbagai penjual terpercaya
+- Tambahkan produk favorit ke keranjang belanja
+- Checkout dan lakukan pembayaran dengan mudah
+- Berikan rating dan review untuk produk yang dibeli
+- Lacak status pesanan Anda secara real-time
+
+Login di: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login
+
+Informasi Akun:
+- Email: ${to}
+- Status: Aktif
+- Tanggal Registrasi: ${new Date().toLocaleDateString('id-ID')}
+
+Selamat berbelanja di Campus Market!
+
+Salam,
+Tim Campus Market
+    `;
+
+    await transporter.sendMail({
+      from: `"Campus Market" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    console.log(`✅ Registration email sent to ${to}`);
+  } catch (error) {
+    console.error('❌ Error sending registration email:', error);
+    throw error; // Re-throw so the caller knows about the failure
+  }
+}
+
+/**
+ * Send email verification link
+ * @param to - User email address
+ * @param userName - User name
+ * @param verificationToken - Verification token
+ * @param verificationLink - Full verification link URL
+ */
+export async function sendEmailVerificationLink(
+  to: string,
+  userName: string,
+  verificationLink: string
+): Promise<void> {
+  try {
+    // Skip email if SMTP not configured (development mode)
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+      console.log('⚠️  SMTP not configured. Email notification skipped.');
+      console.log(`📧 Would send verification link to ${to}: ${verificationLink}`);
+      return;
+    }
+
+    const subject = '✉️ Verifikasi Email Anda - Campus Market';
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .verify-icon { font-size: 48px; margin-bottom: 10px; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; text-align: center; width: 200px; }
+            .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+            .code-box { background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; text-align: center; margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="verify-icon">✉️</div>
+              <h1>Verifikasi Email Anda</h1>
+            </div>
+            <div class="content">
+              <h2>Halo, ${userName}!</h2>
+              <p>Terima kasih telah mendaftar di <strong>Campus Market</strong>.</p>
+              <p>Untuk menyelesaikan proses registrasi, silakan verifikasi email Anda dengan mengklik tombol di bawah:</p>
+              
+              <div style="text-align: center;">
+                <a href="${verificationLink}" class="button">Verifikasi Email</a>
+              </div>
+              
+              <p style="text-align: center; font-size: 12px;">Atau copy link berikut jika tombol tidak berfungsi:</p>
+              <div class="code-box">
+                ${verificationLink}
+              </div>
+              
+              <div class="warning-box">
+                <strong>⚠️ Perhatian Penting:</strong>
+                <ul>
+                  <li>Link verifikasi ini berlaku selama <strong>24 jam</strong></li>
+                  <li>Jika link sudah kadaluarsa, Anda dapat mendaftar ulang</li>
+                  <li>Jangan membagikan link ini kepada siapa pun</li>
+                </ul>
+              </div>
+              
+              <p>Jika Anda tidak mendaftar akun di Campus Market, abaikan email ini.</p>
+              
+              <p>Salam,<br><strong>Tim Campus Market</strong></p>
+            </div>
+            <div class="footer">
+              <p>Email ini dikirim secara otomatis. Mohon tidak membalas email ini.</p>
+              <p>&copy; ${new Date().getFullYear()} Campus Market. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    const textContent = `
+Verifikasi Email Anda
+
+Halo, ${userName}!
+
+Terima kasih telah mendaftar di Campus Market.
+
+Untuk menyelesaikan proses registrasi, silakan verifikasi email Anda dengan mengklik link berikut:
+
+${verificationLink}
+
+Link verifikasi ini berlaku selama 24 jam.
+
+Jika Anda tidak mendaftar akun di Campus Market, abaikan email ini.
+
+Salam,
+Tim Campus Market
+    `;
+
+    await transporter.sendMail({
+      from: `"Campus Market" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    console.log(`✅ Email verification link sent to ${to}`);
+  } catch (error) {
+    console.error('❌ Error sending email verification link:', error);
+    throw error;
+  }
+}

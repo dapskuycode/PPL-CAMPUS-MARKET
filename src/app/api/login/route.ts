@@ -35,11 +35,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Akun Anda tidak aktif" }, { status: 403 });
     }
 
-    // Check if seller is verified (skip for admin and buyer)
-    if (user.role === "penjual" && user.statusVerifikasi !== "verified") {
-      return NextResponse.json({ error: "Akun Anda belum diverifikasi oleh admin. Silakan tunggu proses verifikasi." }, { status: 403 });
-    }
-
     // Return user data (exclude password)
     const { password: _, ...userWithoutPassword } = user;
 

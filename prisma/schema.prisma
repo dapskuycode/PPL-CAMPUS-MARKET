@@ -8,30 +8,32 @@ datasource db {
 }
 
 model User {
-  idUser            Int       @id @default(autoincrement())
-  nama              String    @db.VarChar(255)
-  noHP              String    @db.VarChar(20)
-  email             String    @unique @db.VarChar(255)
-  alamatJalan       String    @db.VarChar(255)
-  rt                String    @db.VarChar(10)
-  rw                String    @db.VarChar(10)
-  namaKelurahan     String    @db.VarChar(100)
-  kabupatenKota     String    @db.VarChar(100)
-  provinsi          String    @db.VarChar(100)
-  noKtp             String?   @db.VarChar(30)
-  fotoKtp           String?   @db.VarChar(255)
-  fileUploadPIC     String?   @db.VarChar(255)
-  statusVerifikasi  String?   @default("pending") @db.VarChar(20)
-  tanggalVerifikasi DateTime? @db.Timestamp(6)
-  statusAkun        String?   @default("aktif") @db.VarChar(20)
-  tanggalDaftar     DateTime? @default(now()) @db.Timestamp(6)
-  role              String    @default("pembeli") @db.VarChar(50)
-  password          String    @db.VarChar(255)
-  kecamatan         String?   @db.VarChar(100)
-  product           Product[] @relation("SellerProducts")
-  toko              Toko?
-  cart              Cart[]
-  order             Order[]
+  idUser               Int       @id @default(autoincrement())
+  nama                 String    @db.VarChar(255)
+  noHP                 String    @db.VarChar(20)
+  email                String    @unique @db.VarChar(255)
+  alamatJalan          String    @db.VarChar(255)
+  rt                   String    @db.VarChar(10)
+  rw                   String    @db.VarChar(10)
+  namaKelurahan        String    @db.VarChar(100)
+  kabupatenKota        String    @db.VarChar(100)
+  provinsi             String    @db.VarChar(100)
+  noKtp                String?   @db.VarChar(30)
+  fotoKtp              String?   @db.VarChar(255)
+  fileUploadPIC        String?   @db.VarChar(255)
+  statusVerifikasi     String?   @default("pending") @db.VarChar(20)
+  tanggalVerifikasi    DateTime? @db.Timestamp(6)
+  statusAkun           String?   @default("aktif") @db.VarChar(20)
+  tanggalDaftar        DateTime? @default(now()) @db.Timestamp(6)
+  role                 String    @default("pembeli") @db.VarChar(50)
+  password             String    @db.VarChar(255)
+  kecamatan            String?   @db.VarChar(100)
+  emailVerificationToken String?  @unique @db.VarChar(255)
+  emailVerificationExpires DateTime? @db.Timestamp(6)
+  product              Product[] @relation("SellerProducts")
+  toko                 Toko?
+  cart                 Cart[]
+  order                Order[]
 
   @@index([email])
   @@index([role])

@@ -63,6 +63,8 @@ async function seedUsers() {
       role: "admin",
       statusAkun: "aktif",
       statusVerifikasi: "verified",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
     },
   });
 
@@ -85,6 +87,8 @@ async function seedUsers() {
       role: "penjual",
       statusAkun: "aktif",
       statusVerifikasi: "verified",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
       toko: {
         create: {
           namaToko: "Toko Elektronik Budi",
@@ -114,6 +118,8 @@ async function seedUsers() {
       role: "penjual",
       statusAkun: "aktif",
       statusVerifikasi: "verified",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
       toko: {
         create: {
           namaToko: "Fashion Siti",
@@ -142,6 +148,8 @@ async function seedUsers() {
       role: "penjual",
       statusAkun: "aktif",
       statusVerifikasi: "pending",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
       toko: {
         create: {
           namaToko: "Toko Buku Ahmad",
@@ -169,6 +177,8 @@ async function seedUsers() {
       role: "pembeli",
       statusAkun: "aktif",
       statusVerifikasi: "verified",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
     },
   });
 
@@ -190,6 +200,8 @@ async function seedUsers() {
       role: "pembeli",
       statusAkun: "aktif",
       statusVerifikasi: "verified",
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
     },
   });
 

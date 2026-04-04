@@ -40,6 +40,12 @@ function LoginContent() {
       console.log("Login berhasil:", data);
       localStorage.setItem("user", JSON.stringify(data.user));
 
+      // Check if seller and pending verification
+      if (data.user.role === "penjual" && data.user.statusVerifikasi === "pending") {
+        router.push("/seller-pending");
+        return;
+      }
+
       if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "penjual") {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendVerificationEmail, sendEmailVerificationLink } from "@/lib/email";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   // Require admin authentication
@@ -37,22 +38,46 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user verification status
+    let verificationToken = "";
+    const dataToUpdate: any = {
+      statusVerifikasi: status,
+      tanggalVerifikasi: new Date(),
+    };
+
+    // If approved, generate verification token
+    if (status === "verified") {
+      verificationToken = crypto.randomBytes(32).toString('hex');
+      const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      dataToUpdate.emailVerificationToken = verificationToken;
+      dataToUpdate.emailVerificationExpires = tokenExpiry;
+    }
+
     const updatedUser = await prisma.user.update({
       where: { idUser: parseInt(idUser) },
-      data: {
-        statusVerifikasi: status,
-        tanggalVerifikasi: new Date(),
-      },
+      data: dataToUpdate,
     });
 
     // Send verification email notification
     try {
-      await sendVerificationEmail(
-        updatedUser.email,
-        updatedUser.nama,
-        status,
-        reason
-      );
+      if (status === "verified") {
+        // Send verification link email
+        const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+        await sendEmailVerificationLink(
+          updatedUser.email,
+          updatedUser.nama,
+          verificationLink
+        );
+        console.log(`✅ Verification email sent to ${updatedUser.email} (seller approved)`);
+      } else {
+        // Send rejection email
+        await sendVerificationEmail(
+          updatedUser.email,
+          updatedUser.nama,
+          status,
+          reason
+        );
+        console.log(`✅ Rejection email sent to ${updatedUser.email}`);
+      }
     } catch (emailError) {
       console.error("Email notification failed (non-critical):", emailError);
       // Continue execution even if email fails

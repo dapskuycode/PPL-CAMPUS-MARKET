@@ -72,6 +72,8 @@ export default function AdminSellersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<"verify" | "status" | "">("");
   const [newStatus, setNewStatus] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -110,6 +112,7 @@ export default function AdminSellersPage() {
     setSelectedSeller(seller);
     setActionType("verify");
     setNewStatus(action === "verify" ? "verified" : "rejected");
+    setRejectionReason("");
     setDialogOpen(true);
   };
 
@@ -123,32 +126,70 @@ export default function AdminSellersPage() {
   const handleConfirmAction = async () => {
     if (!selectedSeller) return;
 
+    // Validate rejection reason
+    if (actionType === "verify" && newStatus === "rejected" && !rejectionReason.trim()) {
+      alert("Alasan penolakan harus diisi");
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      const updateData =
-        actionType === "verify"
-          ? { idUser: selectedSeller.idUser, statusVerifikasi: newStatus }
-          : { idUser: selectedSeller.idUser, statusAkun: newStatus };
+      if (actionType === "verify") {
+        // Use verify-seller endpoint for approval/rejection
+        const userData = localStorage.getItem("user");
+        const response = await fetch("/api/admin/verify-seller", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-User-Data": userData || "",
+          },
+          body: JSON.stringify({
+            idUser: selectedSeller.idUser,
+            status: newStatus,
+            reason: newStatus === "rejected" ? rejectionReason : undefined,
+          }),
+        });
 
-      const response = await fetch("/api/admin/sellers", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      });
+        const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.message || "Berhasil memperbarui status penjual");
-        fetchSellers();
+        if (response.ok) {
+          alert(data.message || `Penjual berhasil ${newStatus === "verified" ? "diverifikasi" : "ditolak"}`);
+          fetchSellers();
+        } else {
+          alert(data.error || "Gagal memperbarui status penjual");
+        }
       } else {
-        alert(data.error || "Gagal memperbarui status penjual");
+        // Use sellers endpoint for account status changes
+        const userData = localStorage.getItem("user");
+        const response = await fetch("/api/admin/sellers", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-User-Data": userData || "",
+          },
+          body: JSON.stringify({
+            idUser: selectedSeller.idUser,
+            statusAkun: newStatus,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert(data.message || "Berhasil memperbarui status penjual");
+          fetchSellers();
+        } else {
+          alert(data.error || "Gagal memperbarui status penjual");
+        }
       }
     } catch (error) {
       console.error("Error updating seller:", error);
       alert("Terjadi kesalahan saat memperbarui status");
     } finally {
+      setSubmitting(false);
       setDialogOpen(false);
       setSelectedSeller(null);
+      setRejectionReason("");
     }
   };
 
@@ -405,6 +446,9 @@ export default function AdminSellersPage() {
                 <>
                   Apakah Anda yakin ingin memverifikasi penjual{" "}
                   <strong>{selectedSeller?.nama}</strong>?
+                  <p className="text-sm text-amber-600 mt-2">
+                    Email verifikasi akan dikirim ke {selectedSeller?.email}
+                  </p>
                 </>
               )}
               {actionType === "verify" && newStatus === "rejected" && (
@@ -422,11 +466,36 @@ export default function AdminSellersPage() {
               )}
             </DialogDescription>
           </DialogHeader>
+
+          {actionType === "verify" && newStatus === "rejected" && (
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="text-sm font-medium">Alasan Penolakan</label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Masukkan alasan penolakan..."
+                  className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md text-sm"
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={submitting}
+            >
               Batal
             </Button>
-            <Button onClick={handleConfirmAction}>Konfirmasi</Button>
+            <Button
+              onClick={handleConfirmAction}
+              disabled={submitting}
+            >
+              {submitting ? "Memproses..." : "Konfirmasi"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
